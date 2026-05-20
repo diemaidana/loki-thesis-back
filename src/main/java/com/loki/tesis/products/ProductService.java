@@ -2,14 +2,12 @@ package com.loki.tesis.products;
 
 import com.loki.tesis.products.dtos.request.ProductRequestDto;
 import com.loki.tesis.products.dtos.response.ProductResponseDto;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProductService {
     private final ProductRepository productRepository;
