@@ -16,34 +16,34 @@ import lombok.Setter;
 public class Address {
 
     @Column(length = 100)
-    private String calle;
+    private String street;
 
     @Column(length = 20)
-    private String altura;
+    private String streetNumber;
 
     @Column(length = 10)
-    private String piso;
+    private String floor;
 
     @Column(length = 10)
-    private String departamento;
+    private String apartment;
 
     @Column(length = 100)
-    private String entreCalleUno;
+    private String crossStreetOne;
 
     @Column(length = 100)
-    private String entreCalleDos;
+    private String crossStreetTwo;
 
     @Column(length = 100)
-    private String ciudad;
+    private String city;
 
     @Column(length = 30)
     @Enumerated(EnumType.STRING)
-    private Provinces provincia;
+    private Provinces province;
 
     @Column(length = 20)
-    private String codigoPostal;
+    private String postalCode;
 
     @Column(length = 255)
-    private String referencias;
+    private String references;
 
 }

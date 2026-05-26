@@ -7,40 +7,39 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record AddressDTO(
-
         @NotBlank(message = "La calle es obligatoria.")
         @Size(max=100)
-        String calle,
+        String street,
         @Size(max=20)
-        String altura,
+        String streetNumber,
 
         @Size(max=10)
-        String piso,
+        String floor,
 
         @Size(max=10)
-        String departamento,
+        String apartment,
 
         @Size(max=100)
-        String entreCalleUno,
+        String crossStreetOne,
 
         @Size(max=100)
-        String entreCalleDos,
+        String crossStreetTwo,
 
         @NotBlank(message = "La ciudad es obligatoria.")
         @Size(max=100)
-        String ciudad,
+        String city,
 
         @NotNull(message = "La provincia es obligatoria.")
-        Provinces provincia,
+        Provinces province,
 
         @NotBlank(message = "El codigo postal es obligatorio.")
         @Pattern(regexp = "^\\d{4}$|^[A-Z]\\d{4}[A-Z]{3}$",
                 message = "El código postal debe ser 4 dígitos o formato CPA (ej: B7600ABC)")
         @Size(max=20)
-        String codigoPostal,
+        String postalCode,
 
         @Size(max=255)
-        String referencias
+        String references
 ) {
 
 }
