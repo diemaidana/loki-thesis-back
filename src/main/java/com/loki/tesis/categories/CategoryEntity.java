@@ -36,11 +36,15 @@ public class CategoryEntity {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "status", nullable = false)
+    private Boolean status;
+
     @PrePersist
     public void onCreate() {
         categoryCode = UuidCreator.getTimeOrderedEpoch();
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        status = Boolean.TRUE;
     }
 
     @PreUpdate

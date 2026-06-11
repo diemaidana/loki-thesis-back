@@ -20,7 +20,7 @@ public class CategoryService {
             throw new EntityExistsException(requestDTO.name() + " category already exists.");
 
         CategoryEntity category = categoryMapper.toEntity(requestDTO);
-
+        
         return categoryMapper.toDto(categoryRepository.save(category));
     }
 }
