@@ -7,6 +7,7 @@ public record CategoryResponseDTO(
         UUID categoryCode,
         String name,
         String description,
+        Boolean status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
