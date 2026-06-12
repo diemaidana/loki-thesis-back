@@ -1,11 +1,13 @@
 package com.loki.tesis.products;
 
 import com.github.f4b6a3.uuid.UuidCreator;
+import com.loki.tesis.categories.CategoryEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -31,6 +33,13 @@ public class Product {
     private BigDecimal priceMin;
 
     private LocalDateTime createdAt;
+
+    @ManyToMany
+    @JoinTable(
+            name = "products_categories",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id"))
+    private Set<CategoryEntity> categories;
 
     @PrePersist
     public void onCreate() {
