@@ -18,8 +18,11 @@ import java.util.UUID;
 @Setter
 public class Product {
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
+
     @Column(updatable = false, nullable = false)
-    private UUID id;
+    private UUID productCode;
 
     @Column(nullable = false)
     private String title;
@@ -30,9 +33,14 @@ public class Product {
     @Column(nullable = false)
     private BigDecimal price;
 
+    @Column(nullable = false)
     private BigDecimal priceMin;
 
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 
     @ManyToMany
     @JoinTable(
@@ -44,9 +52,15 @@ public class Product {
     @PrePersist
     public void onCreate() {
         if(this.id == null) {
-            id = UuidCreator.getTimeOrderedEpoch();
+            productCode = UuidCreator.getTimeOrderedEpoch();
         }
 
         createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }
