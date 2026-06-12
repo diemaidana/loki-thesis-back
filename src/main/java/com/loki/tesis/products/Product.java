@@ -42,6 +42,9 @@ public class Product {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "status", nullable = false)
+    private Boolean status;
+
     @ManyToMany
     @JoinTable(
             name = "products_categories",
@@ -55,6 +58,7 @@ public class Product {
             productCode = UuidCreator.getTimeOrderedEpoch();
         }
 
+        status = Boolean.TRUE;
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
