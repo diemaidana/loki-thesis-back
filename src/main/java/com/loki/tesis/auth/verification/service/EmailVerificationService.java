@@ -1,7 +1,6 @@
 package com.loki.tesis.auth.verification.service;
 
 import com.loki.tesis.auth.credential.entity.Credential;
-import com.loki.tesis.auth.credential.service.CredentialService;
 import com.loki.tesis.auth.verification.verificationToken.enums.TokenType;
 import com.loki.tesis.auth.verification.verificationToken.service.VerificationTokenService;
 import com.loki.tesis.shared.email.dto.EmailMessage;
