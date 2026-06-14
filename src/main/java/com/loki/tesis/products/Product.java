@@ -43,7 +43,10 @@ public class Product {
     private LocalDateTime updatedAt;
 
     @Column(name = "status", nullable = false)
-    private Boolean status;
+    private ProductStatus status;
+
+    @Column(name = "stock", nullable = false)
+    private Integer stock;
 
     @ManyToMany
     @JoinTable(
