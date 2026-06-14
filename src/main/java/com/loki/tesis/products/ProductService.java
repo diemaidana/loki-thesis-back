@@ -2,19 +2,16 @@ package com.loki.tesis.products;
 
 import com.loki.tesis.categories.CategoryEntity;
 import com.loki.tesis.categories.CategoryRepository;
+import com.loki.tesis.productImages.services.ProductImageService;
 import com.loki.tesis.products.dtos.request.ProductRequestDto;
 import com.loki.tesis.products.dtos.response.ProductResponseDto;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +21,7 @@ public class ProductService {
     private final ProductMapper productMapper;
 
     private final CategoryRepository categoryRepository;
+    private final ProductImageService productImageService;
 
     @Transactional
     public ProductResponseDto create(ProductRequestDto productRequestDto) {
@@ -86,5 +84,24 @@ public class ProductService {
         Product product = getProductEntity(productCode);
 
         product.setStatus(Boolean.FALSE);
+    }
+
+    @Transactional
+    public ProductResponseDto uploadImages(UUID productCode, List<MultipartFile> images) {
+        Product product = getProductEntity(productCode);
+
+        if(images.isEmpty() || images.size() > 5)
+            throw new IllegalArgumentException("At least one image must be provided.");
+
+        List<String> filenames = images.stream()
+                .map(productImageService::storeImage)
+                .toList();
+
+        for(int i = 0; i < filenames.size(); i++)
+            productImageService.create(filenames.get(i), product, i);
+
+        // product.setStatus();
+
+        return productMapper.toDto(product);
     }
 }

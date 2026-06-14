@@ -13,6 +13,7 @@ public interface ProductMapper {
     @Mapping(target = "productCode", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "categories", ignore = true)
     Product toEntity(ProductRequestDto productRequestDto);
 
     @Mapping(target = "id", ignore = true)

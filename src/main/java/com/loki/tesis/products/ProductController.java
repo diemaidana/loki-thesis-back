@@ -4,8 +4,10 @@ import com.loki.tesis.products.dtos.request.ProductRequestDto;
 import com.loki.tesis.products.dtos.response.ProductResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -44,5 +46,10 @@ public class ProductController {
         productService.delete(productCode);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/{productCode}/uploadImages", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductResponseDto> uploadImages(@PathVariable UUID productCode, @RequestPart List<MultipartFile> images) {
+        return ResponseEntity.ok(productService.uploadImages(productCode, images));
     }
 }

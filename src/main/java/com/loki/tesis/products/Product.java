@@ -54,10 +54,7 @@ public class Product {
 
     @PrePersist
     public void onCreate() {
-        if(this.id == null) {
-            productCode = UuidCreator.getTimeOrderedEpoch();
-        }
-
+        productCode = UuidCreator.getTimeOrderedEpoch();
         status = Boolean.TRUE;
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
