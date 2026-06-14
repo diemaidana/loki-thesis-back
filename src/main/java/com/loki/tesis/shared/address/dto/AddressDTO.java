@@ -39,7 +39,7 @@ public record AddressDTO(
         String postalCode,
 
         @Size(max=255)
-        String references
+        String additionalInformation
 ) {
 
 }

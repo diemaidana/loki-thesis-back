@@ -1,6 +1,11 @@
 package com.loki.tesis.shared.handler;
 
 import com.loki.tesis.auth.exception.CredentialNotFoundException;
+import com.loki.tesis.auth.verification.verificationToken.exception.InvalidTokenTypeException;
+import com.loki.tesis.auth.verification.verificationToken.exception.TokenAlreadyUsedException;
+import com.loki.tesis.auth.verification.verificationToken.exception.TokenExpiredException;
+import com.loki.tesis.auth.verification.verificationToken.exception.TokenNotFoundException;
+import com.loki.tesis.shared.email.exception.EmailSendException;
 import com.loki.tesis.shared.exception.dto.GlobalError;
 import com.loki.tesis.shared.exception.dto.ValidationError;
 import com.loki.tesis.auth.exception.EmailAlreadyExistsException;
@@ -121,6 +126,40 @@ public class GlobalExceptionHandler {
         log.debug("Error de restricciones en parametros: {} errores", errors.size());
 
         return buildValidationProblem(errors, List.of(), "Errores de validacion en parametros");
+    }
+    // 500 - Internal Server Error
+    @ExceptionHandler(EmailSendException.class)
+    public ProblemDetail handleEmailSend(EmailSendException ex) {
+        log.error("Email send no encontrado: {}", ex.getMessage(), ex);
+        return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "No se pudo enviar el email. Intentá más tarde.");
+    }
+
+    // 404 - El token no existe.
+    @ExceptionHandler(TokenNotFoundException.class)
+    public ProblemDetail handleTokenNotFound(TokenNotFoundException ex) {
+        log.debug("Token no encontrado: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    // 400 - Tipo de token invalido.
+    @ExceptionHandler(InvalidTokenTypeException.class)
+    public ProblemDetail handleInvalidTokenType(InvalidTokenTypeException ex) {
+        log.debug("Tipo de token invalido: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    // 410 - Gone - El token existió pero expiró
+    @ExceptionHandler(TokenExpiredException.class)
+    public ProblemDetail handleTokenExpired(TokenExpiredException ex) {
+        log.debug("Token ya expiró: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.GONE, ex.getMessage());
+    }
+
+    // 409 - Conflict - Debido a que el token ya se utilizó.
+    @ExceptionHandler(TokenAlreadyUsedException.class)
+    public ProblemDetail handleTokenAlreadyUsed(TokenAlreadyUsedException ex) {
+        log.debug("Token ya se utilizó: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     // 500 - Internal Server Error

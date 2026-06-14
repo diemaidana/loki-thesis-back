@@ -23,9 +23,11 @@ public interface AuthMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "emailVerified", ignore = true)
     Credential toCredentialEntity(RegisterRequestDTO registerRequestDTO);
 
     @Mapping(source = "user.uuid", target = "uuid")
     @Mapping(source = "credential.email", target = "email")
+    @Mapping(source = "credential.emailVerified", target = "emailVerified")
     AccountResponseDTO toAccountResponseDTO(User user, Credential credential);
 }

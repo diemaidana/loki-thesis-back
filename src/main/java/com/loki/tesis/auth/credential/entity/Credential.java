@@ -22,7 +22,11 @@ public class Credential {
     @Column(nullable = false, length = 255)
     private String password;
 
+    @Column(nullable = false, name = "email_verified")
+    private boolean emailVerified = false;
+
     @OneToOne(fetch = FetchType.LAZY) // FetchType.Lazy hace que no se pudan estos datos automaticamente.
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
+
 }

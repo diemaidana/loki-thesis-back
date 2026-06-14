@@ -111,6 +111,18 @@
 			<artifactId>mapstruct</artifactId>
 			<version>1.6.3</version>
 		</dependency>
+		<!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-mail -->
+		<!-- Spring Boot Starter Mail es una dependencia que proporciona soporte para enviar correos electrónicos desde una aplicación Spring Boot. Incluye bibliotecas y configuraciones necesarias para facilitar la integración de servicios de correo electrónico en la aplicación, lo que permite enviar correos electrónicos de manera sencilla y eficiente. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+		<!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf -->
+		<!-- Thymeleaf es un motor de plantillas para Java que se utiliza comúnmente en aplicaciones web para generar contenido HTML dinámico. Proporciona una forma sencilla y eficiente de crear vistas en aplicaciones Spring Boot. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

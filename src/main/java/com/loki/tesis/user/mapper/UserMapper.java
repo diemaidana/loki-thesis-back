@@ -15,7 +15,7 @@ public interface UserMapper {
 
     @BeanMapping(
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-            ignoreByDefault = true
+        ignoreByDefault = true
     )
     // Whitelist: solo se mapean los 4 campos editables, el resto se ignora por defecto.
     @Mapping(target = "firstName", source = "firstName")

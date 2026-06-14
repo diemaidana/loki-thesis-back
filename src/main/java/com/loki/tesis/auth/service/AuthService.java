@@ -5,6 +5,7 @@ import com.loki.tesis.auth.credential.service.CredentialService;
 import com.loki.tesis.auth.dto.AccountResponseDTO;
 import com.loki.tesis.auth.dto.RegisterRequestDTO;
 import com.loki.tesis.auth.mapper.AuthMapper;
+import com.loki.tesis.auth.verification.service.EmailVerificationService;
 import com.loki.tesis.user.entity.User;
 import com.loki.tesis.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ public class AuthService {
     private final UserService userService;
     private final CredentialService credentialService;
     private final AuthMapper authMapper;
+    private final EmailVerificationService emailVerificationService;
 
     @Transactional(readOnly = true)
     public AccountResponseDTO getCurrentUser(String email) {
@@ -35,6 +37,20 @@ public class AuthService {
         credential.setUser(user);
         Credential saved = credentialService.save(credential);
 
+        emailVerificationService.sendVerificationEmail(saved);
+
         return authMapper.toAccountResponseDTO(user, saved);
+    }
+
+    @Transactional
+    public void verifyEmail(String token) {
+        emailVerificationService.verifyEmail(token);
+    }
+
+    @Transactional
+    public void resendEmailVerification(String email) {
+        credentialService.findByEmailOptional(email)
+                         .filter(c -> !c.isEmailVerified())
+                         .ifPresent(emailVerificationService::sendVerificationEmail);
     }
 }

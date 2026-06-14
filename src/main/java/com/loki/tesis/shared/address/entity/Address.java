@@ -44,6 +44,6 @@ public class Address {
     private String postalCode;
 
     @Column(length = 255)
-    private String references;
+    private String additionalInformation;
 
 }

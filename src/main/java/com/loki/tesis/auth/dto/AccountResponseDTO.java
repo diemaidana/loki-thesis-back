@@ -16,5 +16,6 @@ public record AccountResponseDTO(
         String documentNumber,
         AddressDTO address,
         AccountStatus status,
+        Boolean emailVerified,
         Instant createdAt
 ) {}

@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -30,6 +32,11 @@ public class CredentialService {
         if(credentialRepository.existsByEmail(email)){
             throw new EmailAlreadyExistsException("El email ya esta registrado");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Credential> findByEmailOptional(String email) {
+        return credentialRepository.findByEmail(email);
     }
 
 }
