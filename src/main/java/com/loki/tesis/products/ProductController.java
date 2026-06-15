@@ -1,7 +1,9 @@
 package com.loki.tesis.products;
 
 import com.loki.tesis.products.dtos.request.ProductRequestDto;
-import com.loki.tesis.products.dtos.response.ProductResponseDto;
+import com.loki.tesis.products.dtos.response.ProductCreatedResponseDto;
+import com.loki.tesis.products.dtos.response.ProductDetailResponseDto;
+import com.loki.tesis.products.dtos.response.ProductSummaryResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -19,26 +21,31 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    public ResponseEntity<ProductResponseDto> create(@Valid @RequestBody ProductRequestDto productRequestDto) {
-        ProductResponseDto productResponseDto = productService.create(productRequestDto);
+    public ResponseEntity<ProductCreatedResponseDto> create(@Valid @RequestBody ProductRequestDto productRequestDto) {
+        ProductCreatedResponseDto productCreatedResponseDto = productService.create(productRequestDto);
 
-        return ResponseEntity.ok(productResponseDto);
+        return ResponseEntity.ok(productCreatedResponseDto);
     }
 
     @PutMapping("/{productCode}")
-    public ResponseEntity<ProductResponseDto> update(@PathVariable UUID productCode,
-                                                     @Valid @RequestBody ProductRequestDto request) {
+    public ResponseEntity<ProductCreatedResponseDto> update(@PathVariable UUID productCode,
+                                                            @Valid @RequestBody ProductRequestDto request) {
         return ResponseEntity.ok(productService.update(productCode, request));
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductResponseDto>> getAll() {
+    public ResponseEntity<List<ProductSummaryResponseDto>> getAll() {
         return ResponseEntity.ok(productService.getAll());
     }
 
     @GetMapping("/{productCode}")
-    public ResponseEntity<ProductResponseDto> getByProductCode(@PathVariable UUID productCode) {
-        return ResponseEntity.ok(productService.getByProductCode(productCode));
+    public ResponseEntity<ProductDetailResponseDto> getProductDetailByProductCode(@PathVariable UUID productCode) {
+        return ResponseEntity.ok(productService.getProductDetailsByProductCode(productCode));
+    }
+
+    @GetMapping("/created/{productCode}")
+    public ResponseEntity<ProductCreatedResponseDto> getProductCreatedByProductCode(@PathVariable UUID productCode) {
+        return ResponseEntity.ok(productService.getProductCreatedByProductCode(productCode));
     }
 
     @DeleteMapping("/{productCode}")
@@ -49,7 +56,7 @@ public class ProductController {
     }
 
     @PostMapping(value = "/{productCode}/uploadImages", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ProductResponseDto> uploadImages(@PathVariable UUID productCode, @RequestPart List<MultipartFile> images) {
+    public ResponseEntity<ProductSummaryResponseDto> uploadImages(@PathVariable UUID productCode, @RequestPart List<MultipartFile> images) {
         return ResponseEntity.ok(productService.uploadImages(productCode, images));
     }
 }

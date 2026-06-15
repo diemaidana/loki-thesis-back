@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record ProductPublishedResponseDto(
+public record ProductSummaryResponseDto(
         UUID productCode,
         String title,
         String description,

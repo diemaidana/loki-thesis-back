@@ -4,7 +4,9 @@ import com.loki.tesis.categories.CategoryEntity;
 import com.loki.tesis.categories.CategoryRepository;
 import com.loki.tesis.productImages.services.ProductImageService;
 import com.loki.tesis.products.dtos.request.ProductRequestDto;
-import com.loki.tesis.products.dtos.response.ProductResponseDto;
+import com.loki.tesis.products.dtos.response.ProductCreatedResponseDto;
+import com.loki.tesis.products.dtos.response.ProductDetailResponseDto;
+import com.loki.tesis.products.dtos.response.ProductSummaryResponseDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +26,7 @@ public class ProductService {
     private final ProductImageService productImageService;
 
     @Transactional
-    public ProductResponseDto create(ProductRequestDto productRequestDto) {
+    public ProductCreatedResponseDto create(ProductRequestDto productRequestDto) {
         // User validations missing
 
         Set<CategoryEntity> categories = getCategories(productRequestDto.categories());
@@ -34,7 +36,7 @@ public class ProductService {
         Product product = productMapper.toEntity(productRequestDto);
         product.setCategories(categories);
 
-        return productMapper.toDto(productRepository.save(product));
+        return productMapper.toProductCreatedDto(productRepository.save(product));
     }
 
     private void validateCategories(Set<CategoryEntity> categoriesFound, Set<UUID> categoriesRequest) {
@@ -49,7 +51,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponseDto update(UUID productCode, ProductRequestDto request) {
+    public ProductCreatedResponseDto update(UUID productCode, ProductRequestDto request) {
         Product product = getProductEntity(productCode);
 
         productMapper.updateEntity(request, product);
@@ -60,18 +62,30 @@ public class ProductService {
         product.getCategories().clear();
         product.getCategories().addAll(categories);
 
-        return productMapper.toDto(product);
+        return productMapper.toProductCreatedDto(product);
     }
 
-    public List<ProductResponseDto> getAll() {
+    public List<ProductSummaryResponseDto> getAll() {
         return productRepository.findAll()
                 .stream()
-                .map(productMapper::toDto)
+                .map(p -> productMapper.toProductSummaryDto(p, productImageService.getCoverImageUrl(p.getId())))
                 .toList();
     }
 
-    public ProductResponseDto getByProductCode(UUID productCode) {
-        return productMapper.toDto(getProductEntity(productCode));
+    public ProductDetailResponseDto getProductDetailsByProductCode(UUID productCode) {
+        Product product = getProductEntity(productCode);
+        List<String> imagesUrl = productImageService.getImages(product.getId());
+        return productMapper.toProductDetailDto(product, imagesUrl);
+    }
+
+    public ProductCreatedResponseDto getProductCreatedByProductCode(UUID productCode) {
+        return productMapper.toProductCreatedDto(getProductEntity(productCode));
+    }
+
+    public ProductSummaryResponseDto getProductPublishByCode(UUID productCode) {
+        Product product = getProductEntity(productCode);
+        String imageUrl = productImageService.getCoverImageUrl(product.getId());
+        return productMapper.toProductSummaryDto(product, imageUrl);
     }
 
     private Product getProductEntity(UUID productCode) {
@@ -83,11 +97,11 @@ public class ProductService {
     public void delete(UUID productCode) {
         Product product = getProductEntity(productCode);
 
-        product.setStatus(Boolean.FALSE);
+        product.setStatus(ProductStatus.UNPUBLISHED);
     }
 
     @Transactional
-    public ProductResponseDto uploadImages(UUID productCode, List<MultipartFile> images) {
+    public ProductSummaryResponseDto uploadImages(UUID productCode, List<MultipartFile> images) {
         Product product = getProductEntity(productCode);
 
         if(images.isEmpty() || images.size() > 5)
@@ -100,8 +114,8 @@ public class ProductService {
         for(int i = 0; i < filenames.size(); i++)
             productImageService.create(filenames.get(i), product, i);
 
-        // product.setStatus();
+        product.publish();
 
-        return productMapper.toDto(product);
+        return productMapper.toProductSummaryDto(product, filenames.getFirst());
     }
 }

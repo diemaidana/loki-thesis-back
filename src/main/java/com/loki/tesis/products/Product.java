@@ -58,7 +58,7 @@ public class Product {
     @PrePersist
     public void onCreate() {
         productCode = UuidCreator.getTimeOrderedEpoch();
-        status = Boolean.TRUE;
+        status = ProductStatus.UNPUBLISHED;
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
@@ -66,5 +66,9 @@ public class Product {
     @PreUpdate
     public void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    public void publish() {
+        status = ProductStatus.PUBLISHED;
     }
 }
