@@ -19,7 +19,8 @@ public class VerificationToken {
     // TODO: scheduler que limpie tokens vencidos
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "verification_tokens_id_seq")
+    @SequenceGenerator(name = "verification_tokens_id_seq", sequenceName = "verification_tokens_id_seq", allocationSize = 1)
     private Long id;
 
     @Column(unique = true, nullable = false, length = 64)

@@ -29,5 +29,6 @@ public interface AuthMapper {
     @Mapping(source = "user.uuid", target = "uuid")
     @Mapping(source = "credential.email", target = "email")
     @Mapping(source = "credential.emailVerified", target = "emailVerified")
+    @Mapping(source = "user.createdAt", target = "createdAt")
     AccountResponseDTO toAccountResponseDTO(User user, Credential credential);
 }

@@ -8,6 +8,8 @@ import com.loki.tesis.user.exception.UserAlreadyInactiveException;
 import com.loki.tesis.user.exception.UserNotFoundException;
 import com.loki.tesis.user.mapper.UserMapper;
 import com.loki.tesis.user.repository.UserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
 
     public UserResponseDTO getUserByUuid(UUID uuid) {
         User user = findUserEntityByUuid(uuid);
@@ -30,7 +35,9 @@ public class UserService {
     // Creo un nuevo usuario
     @Transactional
     public User createUser(User user) {
-        return userRepository.save(user);
+        User saved = userRepository.saveAndFlush(user);
+        entityManager.refresh(saved);
+        return saved;
     }
 
     /* hago un Update del Usuario */
