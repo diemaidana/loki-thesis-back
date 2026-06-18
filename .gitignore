@@ -11,5 +11,6 @@ back/target/
 .idea/
 *.iml
 .vscode/
-.user.json
 
+# uploads directory to test locally upload images endpoint
+uploads/
