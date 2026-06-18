@@ -11,3 +11,5 @@ back/target/
 .idea/
 *.iml
 .vscode/
+.user.json
+

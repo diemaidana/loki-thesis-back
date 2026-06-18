@@ -1,0 +1,33 @@
+package com.loki.tesis.auth.credential.entity;
+
+import com.loki.tesis.user.entity.User;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Table(name = "credentials")
+@NoArgsConstructor
+@Getter
+@Setter
+public class Credential {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "credentials_id_seq")
+    @SequenceGenerator(name = "credentials_id_seq", sequenceName = "credentials_id_seq", allocationSize = 1)
+    private Long id;
+
+    @Column(unique = true, nullable = false, length = 100)
+    private String email;
+
+    @Column(nullable = false, length = 255)
+    private String password;
+
+    @Column(nullable = false, name = "email_verified")
+    private boolean emailVerified = false;
+
+    @OneToOne(fetch = FetchType.LAZY) // FetchType.Lazy hace que no se pidan estos datos automaticamente.
+    @JoinColumn(name = "user_id", nullable = false, unique = true, updatable = false)
+    private User user;
+
+}

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Email de prueba</title>
+    </head>
+    <body>
+        <h1>Hola <span th:text="${nombre}">Nombre</span>!</h1>
+        <p>Este es un email de prueba enviado desde la app Loki.</p>
+        <p>Si lo recibiste, la infraestructura de envío funciona correctamente.</p>
+        <p>Fecha: <span th:text="${fecha}">fecha</span></p>
+    </body>
+</html>
