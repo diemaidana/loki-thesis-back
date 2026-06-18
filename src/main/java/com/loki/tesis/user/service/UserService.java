@@ -35,8 +35,11 @@ public class UserService {
     // Creo un nuevo usuario
     @Transactional
     public User createUser(User user) {
-        User saved = userRepository.saveAndFlush(user);
-        entityManager.refresh(saved);
+        //System.out.println(user.getCreatedAt() + " " + user.getUuid().toString());
+        User saved = userRepository.save(user);//  userRepository.saveAndFlush(user);
+        //entityManager.refresh(saved);
+        System.out.println(user.getCreatedAt().toString() + " " + user.getUuid().toString());
+
         return saved;
     }
 

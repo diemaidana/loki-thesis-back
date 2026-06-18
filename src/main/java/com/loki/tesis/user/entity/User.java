@@ -27,7 +27,7 @@ public class User {
     private Long id;
 
     // ID publico no coincide con la base de datos para seguridad y busqueda.
-    @UuidGenerator
+    // @UuidGenerator
     @Column(unique = true, nullable = false, updatable = false)
     private UUID uuid;
 
@@ -44,7 +44,7 @@ public class User {
     @Column(nullable = false, length = 50)
     private String lastName;
 
-    @CreationTimestamp
+    // @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -59,4 +59,9 @@ public class User {
     @Embedded
     private Address address;
 
+    @PrePersist
+    private void prePersist() {
+        this.uuid = UUID.randomUUID();
+        this.createdAt = Instant.now();
+    }
 }
