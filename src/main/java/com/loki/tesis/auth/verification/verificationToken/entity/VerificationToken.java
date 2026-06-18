@@ -19,7 +19,7 @@ public class VerificationToken {
     // TODO: scheduler que limpie tokens vencidos
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(unique = true, nullable = false, length = 64)

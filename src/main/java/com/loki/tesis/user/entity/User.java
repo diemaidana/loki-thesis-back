@@ -22,7 +22,7 @@ public class User {
 
     // ID privado para la base de datos. Es auto-incremental para facilidad en la busqueda, inserciòn, entre otras.
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     // ID publico no coincide con la base de datos para seguridad y busqueda.
