@@ -7,6 +7,8 @@ import com.loki.tesis.products.dtos.request.ProductRequestDto;
 import com.loki.tesis.products.dtos.response.ProductCreatedResponseDto;
 import com.loki.tesis.products.dtos.response.ProductDetailResponseDto;
 import com.loki.tesis.products.dtos.response.ProductSummaryResponseDto;
+import com.loki.tesis.user.entity.User;
+import com.loki.tesis.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,15 +27,19 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductImageService productImageService;
 
+    private final UserService userService;
+
     @Transactional
     public ProductCreatedResponseDto create(ProductRequestDto productRequestDto) {
-        // User validations missing
+
+        User seller = userService.findUserEntityByUuid(productRequestDto.sellerUuid());
 
         Set<CategoryEntity> categories = getCategories(productRequestDto.categories());
 
         validateCategories(categories, productRequestDto.categories());
 
         Product product = productMapper.toEntity(productRequestDto);
+        product.setSeller(seller);
         product.setCategories(categories);
 
         return productMapper.toProductCreatedDto(productRepository.save(product));
@@ -117,5 +123,12 @@ public class ProductService {
         product.publish();
 
         return productMapper.toProductSummaryDto(product, filenames.getFirst());
+    }
+
+    public List<ProductSummaryResponseDto> getProductsBySellerUuid(UUID sellerUuid) {
+        return productRepository.findBySeller_Uuid(sellerUuid)
+                .stream()
+                .map(p -> productMapper.toProductSummaryDto(p, productImageService.getCoverImageUrl(p.getId())))
+                .toList();
     }
 }

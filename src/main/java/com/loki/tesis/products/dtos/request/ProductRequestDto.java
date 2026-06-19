@@ -25,7 +25,15 @@ public record ProductRequestDto(
         BigDecimal priceMin,
 
         @NotNull(message = "You must add at least one category.")
-        Set<UUID> categories
+        Set<UUID> categories,
+
+        @NotNull(message = "Stock is mandatory.")
+        @Positive(message = "Stock must be higher than zero.")
+        Integer stock,
+
+        // TODO reemplazar por AutenticationPrincipal cuando este security.
+        @NotNull(message = "Seller is mandatory.")
+        UUID sellerUuid
 ) {
         @AssertTrue(message = "Minimum price cannot be higher than price.")
         public Boolean isMinimumPriceValid() {

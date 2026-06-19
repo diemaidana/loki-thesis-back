@@ -37,7 +37,7 @@ public class AuthService {
         credential.setUser(user);
         Credential saved = credentialService.save(credential);
 
-        emailVerificationService.sendVerificationEmail(saved);
+        // emailVerificationService.sendVerificationEmail(saved);
 
         return authMapper.toAccountResponseDTO(user, saved);
     }

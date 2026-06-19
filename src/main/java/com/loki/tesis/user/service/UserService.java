@@ -35,12 +35,7 @@ public class UserService {
     // Creo un nuevo usuario
     @Transactional
     public User createUser(User user) {
-        //System.out.println(user.getCreatedAt() + " " + user.getUuid().toString());
-        User saved = userRepository.save(user);//  userRepository.saveAndFlush(user);
-        //entityManager.refresh(saved);
-        System.out.println(user.getCreatedAt().toString() + " " + user.getUuid().toString());
-
-        return saved;
+        return userRepository.save(user);
     }
 
     /* hago un Update del Usuario */
@@ -66,7 +61,7 @@ public class UserService {
 
     /* Funciones privadas */
 
-    private User findUserEntityByUuid(UUID uuid) {
+    public User findUserEntityByUuid(UUID uuid) {
         return userRepository.findByUuid(uuid)
                 .orElseThrow(() -> new UserNotFoundException("El usuario con UUID " + uuid + " no fue encontrado"));
     }

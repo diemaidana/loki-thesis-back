@@ -34,9 +34,19 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductSummaryResponseDto>> getAll() {
-        return ResponseEntity.ok(productService.getAll());
+    public ResponseEntity<List<ProductSummaryResponseDto>> getAll(@RequestParam(required = false) UUID sellerUuid) {
+        List<ProductSummaryResponseDto> products;
+
+        if(sellerUuid == null) {
+            products = productService.getAll();
+        } else {
+            products = productService.getProductsBySellerUuid(sellerUuid);
+        }
+
+        return ResponseEntity.ok(products);
     }
+
+
 
     @GetMapping("/{productCode}")
     public ResponseEntity<ProductDetailResponseDto> getProductDetailByProductCode(@PathVariable UUID productCode) {
