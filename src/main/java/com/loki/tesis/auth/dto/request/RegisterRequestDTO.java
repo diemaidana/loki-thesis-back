@@ -1,4 +1,4 @@
-package com.loki.tesis.auth.dto;
+package com.loki.tesis.auth.dto.request;
 
 import com.loki.tesis.shared.address.dto.AddressDTO;
 import com.loki.tesis.user.enums.SocialNumberType;

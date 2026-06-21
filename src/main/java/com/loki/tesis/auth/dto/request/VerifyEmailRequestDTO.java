@@ -1,4 +1,4 @@
-package com.loki.tesis.auth.dto;
+package com.loki.tesis.auth.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 

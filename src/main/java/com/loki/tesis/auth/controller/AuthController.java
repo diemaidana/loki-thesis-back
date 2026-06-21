@@ -1,9 +1,11 @@
 package com.loki.tesis.auth.controller;
 
-import com.loki.tesis.auth.dto.AccountResponseDTO;
-import com.loki.tesis.auth.dto.RegisterRequestDTO;
-import com.loki.tesis.auth.dto.ResendVerificationRequestDTO;
-import com.loki.tesis.auth.dto.VerifyEmailRequestDTO;
+import com.loki.tesis.auth.dto.response.AccountResponseDTO;
+import com.loki.tesis.auth.dto.request.LoginRequestDTO;
+import com.loki.tesis.auth.dto.response.LoginResponseDTO;
+import com.loki.tesis.auth.dto.request.RegisterRequestDTO;
+import com.loki.tesis.auth.dto.request.ResendVerificationRequestDTO;
+import com.loki.tesis.auth.dto.request.VerifyEmailRequestDTO;
 import com.loki.tesis.auth.service.AuthService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -37,6 +39,12 @@ public class AuthController {
         AccountResponseDTO accountResponseDTO = authService.register(registerRequestDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(accountResponseDTO);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
+        LoginResponseDTO loginResponseDTO = authService.login(loginRequestDTO);
+        return ResponseEntity.ok(loginResponseDTO);
     }
 
     @PostMapping("/email/verify")

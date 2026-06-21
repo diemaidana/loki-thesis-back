@@ -1,6 +1,8 @@
 package com.loki.tesis.shared.handler;
 
 import com.loki.tesis.auth.exception.CredentialNotFoundException;
+import com.loki.tesis.auth.exception.EmailNotVerifiedException;
+import com.loki.tesis.auth.exception.InvalidCredentialsException;
 import com.loki.tesis.auth.verification.verificationToken.exception.InvalidTokenTypeException;
 import com.loki.tesis.auth.verification.verificationToken.exception.TokenAlreadyUsedException;
 import com.loki.tesis.auth.verification.verificationToken.exception.TokenExpiredException;
@@ -139,6 +141,20 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleTokenNotFound(TokenNotFoundException ex) {
         log.debug("Token no encontrado: {}", ex.getMessage());
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    // 401 - Contraseña o email incorrectos.
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex) {
+        log.debug("Credential no encontrado: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Email o contraseña incorrectos.");
+    }
+
+    // 403 - El email no fue verificado.
+    @ExceptionHandler(EmailNotVerifiedException.class)
+    public ProblemDetail handleEmailNotVerified(EmailNotVerifiedException ex) {
+        log.debug("Email no encontrado: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "El email no fue verificado.");
     }
 
     // 400 - Tipo de token invalido.

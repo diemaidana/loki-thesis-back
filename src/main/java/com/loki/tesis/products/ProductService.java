@@ -1,5 +1,7 @@
 package com.loki.tesis.products;
 
+import com.loki.tesis.auth.credential.service.CredentialService;
+import com.loki.tesis.auth.exception.EmailNotVerifiedException;
 import com.loki.tesis.categories.CategoryEntity;
 import com.loki.tesis.categories.CategoryRepository;
 import com.loki.tesis.productImages.services.ProductImageService;
@@ -28,11 +30,14 @@ public class ProductService {
     private final ProductImageService productImageService;
 
     private final UserService userService;
+    private final CredentialService credentialService;
 
     @Transactional
     public ProductCreatedResponseDto create(ProductRequestDto productRequestDto) {
 
         User seller = userService.findUserEntityByUuid(productRequestDto.sellerUuid());
+
+        validateSellerEmailVerified(seller);
 
         Set<CategoryEntity> categories = getCategories(productRequestDto.categories());
 
@@ -58,8 +63,9 @@ public class ProductService {
 
     @Transactional
     public ProductCreatedResponseDto update(UUID productCode, ProductRequestDto request) {
-        Product product = getProductEntity(productCode);
 
+        Product product = getProductEntity(productCode);
+        validateSellerEmailVerified(product.getSeller());
         productMapper.updateEntity(request, product);
 
         Set<CategoryEntity> categories = getCategories(request.categories());
@@ -101,14 +107,17 @@ public class ProductService {
 
     @Transactional
     public void delete(UUID productCode) {
-        Product product = getProductEntity(productCode);
 
+        Product product = getProductEntity(productCode);
+        validateSellerEmailVerified(product.getSeller());
         product.setStatus(ProductStatus.UNPUBLISHED);
     }
 
     @Transactional
     public ProductSummaryResponseDto uploadImages(UUID productCode, List<MultipartFile> images) {
+
         Product product = getProductEntity(productCode);
+        validateSellerEmailVerified(product.getSeller());
 
         if(images.isEmpty() || images.size() > 5)
             throw new IllegalArgumentException("At least one image must be provided.");
@@ -130,5 +139,14 @@ public class ProductService {
                 .stream()
                 .map(p -> productMapper.toProductSummaryDto(p, productImageService.getCoverImageUrl(p.getId())))
                 .toList();
+    }
+
+    // Metodos privados
+
+    // Verifico que el usuario tenga el email verificado.
+    private void validateSellerEmailVerified(User seller) {
+        if(!credentialService.isEmailVerifiedForUser(seller.getId())){
+            throw new EmailNotVerifiedException("Seller's email must be verified.");
+        }
     }
 }
