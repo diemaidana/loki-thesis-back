@@ -43,6 +43,7 @@ public class Product {
     private LocalDateTime updatedAt;
 
     @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private ProductStatus status;
 
     @Column(name = "stock", nullable = false)
