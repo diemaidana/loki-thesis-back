@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
+
 @Entity
 @Table(name = "credentials")
 @NoArgsConstructor
@@ -29,5 +31,19 @@ public class Credential {
     @OneToOne(fetch = FetchType.LAZY) // FetchType.Lazy hace que no se pidan estos datos automaticamente.
     @JoinColumn(name = "user_id", nullable = false, unique = true, updatable = false)
     private User user;
+
+    @Column(nullable = false, name = "login_attempts")
+    private Integer loginAttempts;
+
+    @Column(name = "locked_until")
+    private Instant lockedUntil;
+
+    @Column(name = "last_lock_notification_at")
+    private Instant lastLockNotificationAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.loginAttempts = 0;
+    }
 
 }

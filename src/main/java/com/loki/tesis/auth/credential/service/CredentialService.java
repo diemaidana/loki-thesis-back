@@ -27,6 +27,11 @@ public class CredentialService {
         return credentialRepository.save(credential);
     }
 
+    @Transactional
+    public Credential updateForLogin(Credential credential) {
+        credentialRepository.save(credential);
+        return credential;
+    }
     public Credential findByEmail(String email) {
         return  credentialRepository.findByEmail(email)
                 .orElseThrow(() -> new CredentialNotFoundException("No se encontro ningun email: " + email));

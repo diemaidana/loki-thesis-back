@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Intento de acceso sospechoso</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 40px 0;">
+    <tr>
+        <td align="center">
+            <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; padding: 40px;">
+
+                <!-- Encabezado -->
+                <tr>
+                    <td align="center" style="padding-bottom: 20px;">
+                        <h1 style="color: #333333; margin: 0;">Loki Tesis</h1>
+                    </td>
+                </tr>
+
+                <!-- Banda de alerta -->
+                <tr>
+                    <td align="center" style="padding-bottom: 20px;">
+                        <div style="background-color: #fff3e6; border-left: 4px solid #e67e22; padding: 12px 16px; color: #8a4b00; font-size: 14px; text-align: left;">
+                            <strong>Aviso de seguridad:</strong> detectamos actividad inusual en tu cuenta.
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Saludo y explicacion -->
+                <tr>
+                    <td style="color: #333333; font-size: 16px; line-height: 1.6;">
+                        <p>Hola <strong th:text="${firstName}">Nombre</strong>,</p>
+                        <p>
+                            Detectamos varios intentos fallidos de inicio de sesion en tu cuenta.
+                            Por tu seguridad, la bloqueamos temporalmente durante
+                            <strong th:text="${lockoutMinutes}">15</strong> minutos.
+                        </p>
+                        <p>
+                            Si fuiste vos, no hace falta hacer nada - podes volver a intentar cuando termine ese tiempo.
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Recomendacion -->
+                <tr>
+                    <td style="color: #333333; font-size: 16px; line-height: 1.6; padding-top: 10px;">
+                        <p>
+                            <strong>Si no fuiste vos:</strong> te recomendamos cambiar tu contrasena en cuanto puedas.
+                            Proximamente vas a recibir un link directo desde este email para resetearla.
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Throttling / aviso -->
+                <tr>
+                    <td style="color: #999999; font-size: 13px; padding-top: 20px;">
+                        <p>
+                            Si seguis recibiendo emails similares, alguien podria estar intentando acceder a tu cuenta de forma reiterada.
+                            Para no inundarte de avisos, solo te enviamos uno cada 48 horas.
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td align="center" style="padding-top: 30px; border-top: 1px solid #eeeeee; color: #999999; font-size: 12px;">
+                        <p>&copy; 2026 Loki Tesis - Tesis universitaria</p>
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

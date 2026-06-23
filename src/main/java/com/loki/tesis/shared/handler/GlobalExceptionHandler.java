@@ -1,8 +1,6 @@
 package com.loki.tesis.shared.handler;
 
-import com.loki.tesis.auth.exception.CredentialNotFoundException;
-import com.loki.tesis.auth.exception.EmailNotVerifiedException;
-import com.loki.tesis.auth.exception.InvalidCredentialsException;
+import com.loki.tesis.auth.exception.*;
 import com.loki.tesis.auth.verification.verificationToken.exception.InvalidTokenTypeException;
 import com.loki.tesis.auth.verification.verificationToken.exception.TokenAlreadyUsedException;
 import com.loki.tesis.auth.verification.verificationToken.exception.TokenExpiredException;
@@ -10,7 +8,6 @@ import com.loki.tesis.auth.verification.verificationToken.exception.TokenNotFoun
 import com.loki.tesis.shared.email.exception.EmailSendException;
 import com.loki.tesis.shared.exception.dto.GlobalError;
 import com.loki.tesis.shared.exception.dto.ValidationError;
-import com.loki.tesis.auth.exception.EmailAlreadyExistsException;
 import com.loki.tesis.user.exception.UserAlreadyInactiveException;
 import com.loki.tesis.user.exception.UserNotFoundException;
 import jakarta.validation.ConstraintViolation;
@@ -163,7 +160,12 @@ public class GlobalExceptionHandler {
         log.debug("Tipo de token invalido: {}", ex.getMessage());
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
-
+    // 423 - Cuenta bloqueada por repetidos intentos de login fallidos
+    @ExceptionHandler(AccountLockedException.class)
+    public ProblemDetail handleAccountLocked(AccountLockedException ex) {
+        log.debug("Usuario bloqueado: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.LOCKED, ex.getMessage());
+    }
     // 410 - Gone - El token existió pero expiró
     @ExceptionHandler(TokenExpiredException.class)
     public ProblemDetail handleTokenExpired(TokenExpiredException ex) {

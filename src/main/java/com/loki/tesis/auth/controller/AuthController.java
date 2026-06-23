@@ -25,6 +25,7 @@ public class AuthController {
     private final AuthService authService;
 
 
+
     // TODO: Implementar con @AuthenticationPrincipal cuando este Spring Security
     // TODO: BORRAR REQUESTPARAM.
     @GetMapping("/me")
