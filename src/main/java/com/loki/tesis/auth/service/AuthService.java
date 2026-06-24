@@ -26,6 +26,8 @@ import java.time.Instant;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AuthService {
+    private static final String INVALID_CREDENTIALS_MESSAGE = "Credenciales invalidas";
+
     private final UserService userService;
     private final CredentialService credentialService;
     private final AuthMapper authMapper;
@@ -63,56 +65,73 @@ public class AuthService {
         return authMapper.toAccountResponseDTO(user, saved);
     }
 
-    @Transactional
+    // noRollbackFor: dejamos commitear los cambios sobre `loginAttempts`, `lockedUntil`
+    // y `lastLockNotificationAt` aunque el método termine lanzando excepción.
+    @Transactional(noRollbackFor = {InvalidCredentialsException.class, AccountLockedException.class})
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
-
         Credential credential = credentialService
                 .findByEmailOptional(loginRequestDTO.email())
-                .orElseThrow(
-                    () ->  new InvalidCredentialsException("Credenciales invalidas")
-                );
+                .orElseThrow(() -> new InvalidCredentialsException(INVALID_CREDENTIALS_MESSAGE));
 
-        if(credential.getLockedUntil() != null && credential.getLockedUntil().isAfter(Instant.now())) {
-            throw new AccountLockedException("Cuenta bloqueada debido a múltiples intentos fallidos. Intente nuevamente después de " + lockoutDurationMinutes + " minutos.");
+        ensureAccountNotLocked(credential);
+
+        if (passwordEncoder.matches(loginRequestDTO.password(), credential.getPassword())) {
+            return handleSuccessfulLogin(credential);
         }
 
-        if(credential.getLockedUntil() != null && credential.getLockedUntil().isBefore(Instant.now())) {
-            credential.setLockedUntil(null);
-            credential.setLoginAttempts(0);
+        handleFailedLogin(credential);
+        throw new InvalidCredentialsException(INVALID_CREDENTIALS_MESSAGE);
+    }
+
+    private void ensureAccountNotLocked(Credential credential) {
+        Instant lockedUntil = credential.getLockedUntil();
+        if (lockedUntil == null) {
+            return;
+        }
+        if (lockedUntil.isAfter(Instant.now())) {
+            throw new AccountLockedException(accountLockedMessage());
+        }
+        // El lockout ya expiró: limpiamos el estado para empezar de cero.
+        credential.setLockedUntil(null);
+        credential.setLoginAttempts(0);
+    }
+
+    private LoginResponseDTO handleSuccessfulLogin(Credential credential) {
+        credential.setLoginAttempts(0);
+        credential.setLockedUntil(null);
+
+        String token = jwtService.generateToken(credential.getUser(), credential.getEmail());
+        String expiresAt = Instant.now().plus(jwtService.getJwtExpiration()).toString();
+        AccountResponseDTO account = authMapper.toAccountResponseDTO(credential.getUser(), credential);
+        return authMapper.toLoginResponseDTO(account, token, expiresAt);
+    }
+
+    private void handleFailedLogin(Credential credential) {
+        credential.setLoginAttempts(credential.getLoginAttempts() + 1);
+
+        if (credential.getLoginAttempts() < maxFailedAttempts) {
+            return;
         }
 
-        if(passwordEncoder.matches(loginRequestDTO.password(), credential.getPassword())) {
-            String token = jwtService.generateToken(credential.getUser(), credential.getEmail());
-            String expiresAt = Instant.now().plus(jwtService.getJwtExpiration()).toString();
-            AccountResponseDTO accountResponseDTO = authMapper.toAccountResponseDTO(credential.getUser(), credential);
+        credential.setLockedUntil(Instant.now().plus(Duration.ofMinutes(lockoutDurationMinutes)));
+        notifyAccountLockedIfNotThrottled(credential);
+        throw new AccountLockedException(accountLockedMessage());
+    }
 
-            credential.setLoginAttempts(0);  // Lo seteamos 0 si las credenciales son correctas
-            credential.setLockedUntil(null); // Lo seteamos null si las credenciales son correctas
+    private void notifyAccountLockedIfNotThrottled(Credential credential) {
+        Instant throttleThreshold = Instant.now().minus(Duration.ofHours(lockoutNotificationThrottleHours));
+        Instant lastNotification = credential.getLastLockNotificationAt();
 
-            credentialService.updateForLogin(credential); // update a la credencial.
-
-            return authMapper.toLoginResponseDTO(accountResponseDTO, token, expiresAt);
-        } else {
-            credential.setLoginAttempts(credential.getLoginAttempts() + 1);
-
-            if(credential.getLoginAttempts() >= maxFailedAttempts) {
-                Instant umbral = Instant.now().minus(Duration.ofHours(lockoutNotificationThrottleHours));
-
-                if(credential.getLastLockNotificationAt() == null || credential.getLastLockNotificationAt().isBefore(umbral)) {
-                    credential.setLastLockNotificationAt(Instant.now());
-                    credentialService.updateForLogin(credential);
-                    emailVerificationService.sendLockNotificationEmail(lockoutNotificationThrottleHours, credential);
-                }
-                else {
-                    credentialService.updateForLogin(credential);
-                }
-
-                credential.setLockedUntil(Instant.now().plusSeconds(lockoutDurationMinutes * 60L));
-                throw new AccountLockedException("Cuenta bloqueada debido a múltiples intentos fallidos. Intente nuevamente después de " + lockoutDurationMinutes + " minutos.");
-            }
-            throw new InvalidCredentialsException("Credenciales invalidas");
+        if (lastNotification != null && lastNotification.isAfter(throttleThreshold)) {
+            return;
         }
+        credential.setLastLockNotificationAt(Instant.now());
+        emailVerificationService.sendLockNotificationEmail(lockoutNotificationThrottleHours, credential);
+    }
 
+    private String accountLockedMessage() {
+        return "Cuenta bloqueada debido a múltiples intentos fallidos. Intente nuevamente después de "
+                + lockoutDurationMinutes + " minutos.";
     }
 
     @Transactional
