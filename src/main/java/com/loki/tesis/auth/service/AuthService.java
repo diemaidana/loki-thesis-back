@@ -126,7 +126,7 @@ public class AuthService {
             return;
         }
         credential.setLastLockNotificationAt(Instant.now());
-        emailVerificationService.sendLockNotificationEmail(lockoutNotificationThrottleHours, credential);
+        emailVerificationService.sendLockNotificationEmail(lockoutDurationMinutes, credential);
     }
 
     private String accountLockedMessage() {

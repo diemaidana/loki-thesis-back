@@ -60,7 +60,7 @@ public class EmailServiceImpl implements EmailService {
         try {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             helper.setFrom(fromEmail, fromName);
-            helper.setTo(fromEmail); // aca usar el userEmail. TODO.
+            helper.setTo(userEmail);
             helper.setSubject("Alerta: Cuenta bloqueada por intentos fallidos de inicio de sesión");
             helper.setText(htmlContent, true);
             mailSender.send(mimeMessage);
