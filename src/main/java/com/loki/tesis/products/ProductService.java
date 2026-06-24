@@ -7,6 +7,7 @@ import com.loki.tesis.products.dtos.request.ProductRequestDto;
 import com.loki.tesis.products.dtos.response.ProductCreatedResponseDto;
 import com.loki.tesis.products.dtos.response.ProductDetailResponseDto;
 import com.loki.tesis.products.dtos.response.ProductSummaryResponseDto;
+import com.loki.tesis.shared.validation.ImageValidator;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -102,6 +103,12 @@ public class ProductService {
 
     @Transactional
     public ProductSummaryResponseDto uploadImages(UUID productCode, List<MultipartFile> images) {
+
+        for (MultipartFile image : images) {
+            if(ImageValidator.isSizeExceeded(image))
+                throw new IllegalArgumentException("Images must be under 5MB.");
+        }
+
         Product product = getProductEntity(productCode);
 
         if(images.isEmpty() || images.size() > 5)

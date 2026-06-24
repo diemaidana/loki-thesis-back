@@ -1,9 +1,6 @@
 package com.loki.tesis.products.dtos.request;
 
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -25,7 +22,11 @@ public record ProductRequestDto(
         BigDecimal priceMin,
 
         @NotNull(message = "You must add at least one category.")
-        Set<UUID> categories
+        Set<UUID> categories,
+
+        @NotNull(message = "Stock is mandatory.")
+        @PositiveOrZero(message = "Stock must be higher than 0.")
+        Integer stock
 ) {
         @AssertTrue(message = "Minimum price cannot be higher than price.")
         public Boolean isMinimumPriceValid() {
