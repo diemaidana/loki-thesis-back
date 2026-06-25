@@ -11,7 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.print.Pageable;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -34,8 +37,11 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductSummaryResponseDto>> getAll() {
-        return ResponseEntity.ok(productService.getAll());
+    public ResponseEntity<List<ProductSummaryResponseDto>> getAll(@RequestParam(required = false) List<UUID> categoryCodes,
+                                                                  @RequestParam(required = false) BigDecimal minPrice,
+                                                                  @RequestParam(required = false) BigDecimal maxPrice,
+                                                                  Pageable page) {
+        return ResponseEntity.ok(productService.getAll(categoryCodes, minPrice, maxPrice, page));
     }
 
     @GetMapping("/{productCode}")

@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.print.Pageable;
+import java.math.BigDecimal;
 import java.util.*;
 
 @Service
@@ -66,7 +68,10 @@ public class ProductService {
         return productMapper.toProductCreatedDto(product);
     }
 
-    public List<ProductSummaryResponseDto> getAll() {
+    public List<ProductSummaryResponseDto> getAll(List<UUID> categoryCodes,
+                                                  BigDecimal minPrice,
+                                                  BigDecimal maxPrice,
+                                                  Pageable page) {
         return productRepository.findAll()
                 .stream()
                 .map(p -> productMapper.toProductSummaryDto(p, productImageService.getCoverImageUrl(p.getId())))
