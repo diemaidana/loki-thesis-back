@@ -42,6 +42,9 @@ public class OfferEntity {
     private BigDecimal price;
 
     @Column(nullable = false)
+    private Integer amount;
+
+    @Column(nullable = false)
     private LocalDateTime expiresAt;
 
     @Column(nullable = false, updatable = false)
