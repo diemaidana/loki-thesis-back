@@ -25,6 +25,6 @@ public class ImageValidator implements ConstraintValidator<ValidImage, Multipart
     }
 
     public static boolean isSizeExceeded(MultipartFile file) {
-        return file.getSize() < MAX_IMAGE_SIZE;
+        return file.getSize() > MAX_IMAGE_SIZE;
     }
 }

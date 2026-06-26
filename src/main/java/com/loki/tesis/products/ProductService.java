@@ -110,7 +110,10 @@ public class ProductService {
     public void delete(UUID productCode) {
         Product product = getProductEntity(productCode);
 
-        product.setStatus(ProductStatus.UNPUBLISHED);
+        if(product.getStatus().equals(ProductStatus.DELETED))
+            throw new IllegalArgumentException("Product is already deleted.");
+
+        product.setStatus(ProductStatus.DELETED);
     }
 
     @Transactional

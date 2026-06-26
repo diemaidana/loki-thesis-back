@@ -4,6 +4,7 @@ import com.loki.tesis.products.dtos.request.ProductRequestDto;
 import com.loki.tesis.products.dtos.response.ProductCreatedResponseDto;
 import com.loki.tesis.products.dtos.response.ProductDetailResponseDto;
 import com.loki.tesis.products.dtos.response.ProductSummaryResponseDto;
+import com.loki.tesis.shared.validation.ValidImage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -81,7 +82,7 @@ public class ProductController {
     }
 
     @PostMapping(value = "/{productCode}/uploadImages", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ProductSummaryResponseDto> uploadImages(@PathVariable UUID productCode, @RequestPart List<MultipartFile> images) {
+    public ResponseEntity<ProductSummaryResponseDto> uploadImages(@PathVariable UUID productCode, @RequestPart List<@ValidImage MultipartFile> images) {
         return ResponseEntity.ok(productService.uploadImages(productCode, images));
     }
 }
