@@ -10,13 +10,18 @@ import com.loki.tesis.products.dtos.response.ProductSummaryResponseDto;
 import com.loki.tesis.shared.validation.ImageValidator;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.print.Pageable;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -68,14 +73,16 @@ public class ProductService {
         return productMapper.toProductCreatedDto(product);
     }
 
-    public List<ProductSummaryResponseDto> getAll(List<UUID> categoryCodes,
+    public Page<ProductSummaryResponseDto> getAllPublished(String title,
+                                                  List<UUID> categoryCodes,
                                                   BigDecimal minPrice,
                                                   BigDecimal maxPrice,
                                                   Pageable page) {
-        return productRepository.findAll()
-                .stream()
-                .map(p -> productMapper.toProductSummaryDto(p, productImageService.getCoverImageUrl(p.getId())))
-                .toList();
+
+        Specification<Product> specification = getSpecificationFilter(title, categoryCodes, minPrice, maxPrice);
+
+        return productRepository.findAllByStatus(ProductStatus.PUBLISHED, specification, page)
+                .map(product -> productMapper.toProductSummaryDto(product, productImageService.getCoverImageUrl(product.getId())));
     }
 
     public ProductDetailResponseDto getProductDetailsByProductCode(UUID productCode) {
@@ -129,5 +136,40 @@ public class ProductService {
         product.publish();
 
         return productMapper.toProductSummaryDto(product, filenames.getFirst());
+    }
+
+    public Page<ProductCreatedResponseDto> getAllUnpublished(String title,
+                                                             List<UUID> categoryCodes,
+                                                             BigDecimal minPrice,
+                                                             BigDecimal maxPrice,
+                                                             Pageable page) {
+
+        Specification<Product> specification = getSpecificationFilter(title, categoryCodes, minPrice, maxPrice);
+
+        return productRepository.findAllByStatus(ProductStatus.UNPUBLISHED, specification, page)
+                .map(productMapper::toProductCreatedDto);
+    }
+
+    public Page<ProductCreatedResponseDto> getAllCreated(String title,
+                                                         List<UUID> categoryCodes,
+                                                         BigDecimal minPrice,
+                                                         BigDecimal maxPrice,
+                                                         Pageable page) {
+
+        Specification<Product> specification = getSpecificationFilter(title, categoryCodes, minPrice, maxPrice);
+
+        return productRepository.findAll(specification, page)
+                .map(productMapper::toProductCreatedDto);
+    }
+
+    private Specification<Product> getSpecificationFilter(String title,
+                                                          List<UUID> categoryCodes,
+                                                          BigDecimal minPrice,
+                                                          BigDecimal maxPrice) {
+        return Specification.allOf(
+                ProductSpecification.titleContains(title),
+                ProductSpecification.hasCategories(categoryCodes),
+                ProductSpecification.priceBetween(minPrice, maxPrice)
+        );
     }
 }
