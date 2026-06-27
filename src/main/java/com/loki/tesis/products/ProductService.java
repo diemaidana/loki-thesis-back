@@ -8,6 +8,8 @@ import com.loki.tesis.products.dtos.response.ProductCreatedResponseDto;
 import com.loki.tesis.products.dtos.response.ProductDetailResponseDto;
 import com.loki.tesis.products.dtos.response.ProductSummaryResponseDto;
 import com.loki.tesis.shared.validation.ImageValidator;
+import com.loki.tesis.user.entity.User;
+import com.loki.tesis.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,10 +34,12 @@ public class ProductService {
 
     private final CategoryRepository categoryRepository;
     private final ProductImageService productImageService;
+    private final UserRepository userRepository;
 
     @Transactional
     public ProductCreatedResponseDto create(ProductRequestDto productRequestDto) {
-        // User validations missing
+        User user = userRepository.findByUuid(productRequestDto.user())
+                .orElseThrow(() -> new EntityNotFoundException("User not found."));
 
         Set<CategoryEntity> categories = getCategories(productRequestDto.categories());
 
@@ -43,6 +47,7 @@ public class ProductService {
 
         Product product = productMapper.toEntity(productRequestDto);
         product.setCategories(categories);
+        product.setSeller(user);
 
         return productMapper.toProductCreatedDto(productRepository.save(product));
     }

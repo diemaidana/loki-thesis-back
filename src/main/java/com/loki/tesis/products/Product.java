@@ -2,6 +2,7 @@ package com.loki.tesis.products;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.loki.tesis.categories.CategoryEntity;
+import com.loki.tesis.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -48,6 +49,10 @@ public class Product {
 
     @Column(name = "stock", nullable = false)
     private Integer stock;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id", nullable = false)
+    private User seller;
 
     @ManyToMany
     @JoinTable(

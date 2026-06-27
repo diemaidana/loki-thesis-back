@@ -19,6 +19,7 @@ public interface ProductMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "categories", ignore = true)
+    @Mapping(target = "seller", ignore = true)
     Product toEntity(ProductRequestDto productRequestDto);
 
     @Mapping(target = "id", ignore = true)
