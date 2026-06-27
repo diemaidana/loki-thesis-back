@@ -71,6 +71,7 @@ public class OfferEntity {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
         expiresAt = LocalDateTime.now().plusDays(1);
+        status = OfferStatus.OPEN;
     }
 
     @PreUpdate

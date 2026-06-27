@@ -13,9 +13,6 @@ public record CreateOfferRequestDto(
         @NotNull(message = "Buyer public ID is mandatory")
         UUID buyerCode,
 
-        @NotNull(message = "Seller public ID is mandatory.")
-        UUID sellerCode,
-
         @NotNull(message = "Price offered is mandatory.")
         @Positive(message = "Price offered must be positive.")
         BigDecimal price,
