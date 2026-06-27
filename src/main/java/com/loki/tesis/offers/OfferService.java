@@ -28,9 +28,6 @@ public class OfferService {
         Product product = productRepository.findByProductCodeAndUserId(request.productCode(), buyer.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Product not found."));
 
-        if(offerRepository.findByProductIdAndUserId(product.getId(), buyer.getId()))
-            throw new IllegalArgumentException("There is an offer already made by this user for this product.")
-
         if(!validateAmountOffer(request.amount(), product))
             throw new IllegalArgumentException("Stock insufficient.");
 
@@ -40,6 +37,8 @@ public class OfferService {
         User seller = userRepository.findByUuid(request.sellerCode())
                 .orElseThrow(() -> new EntityNotFoundException("Seller user not found."));
 
+        if(offerRepository.findByProductIdAndUserId(product.getId(), buyer.getId()))
+            throw new IllegalArgumentException("There is an offer already made by this user for this product.");
 
 
 
