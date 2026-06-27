@@ -7,6 +7,10 @@ import java.util.Set;
 import java.util.UUID;
 
 public record ProductRequestDto(
+
+        @NotNull(message = "User uuid is mandatory")
+        UUID user,
+
         @NotBlank(message = "Title is mandatory.")
         String title,
 
