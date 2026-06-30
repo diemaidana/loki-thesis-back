@@ -2,6 +2,7 @@ package com.loki.tesis.offers.dto;
 
 import com.loki.tesis.offers.OfferStatus;
 import com.loki.tesis.products.dtos.response.ProductSummaryResponseDto;
+import com.loki.tesis.user.dto.UserResponseDTO;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ public record CreateOfferResponseDTO(
         BigDecimal price,
         Integer amount,
         LocalDateTime expiresAt,
-        ProductSummaryResponseDto product
+        ProductSummaryResponseDto product,
+        UserResponseDTO seller
 ) {
 }

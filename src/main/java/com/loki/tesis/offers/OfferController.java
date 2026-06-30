@@ -1,6 +1,7 @@
 package com.loki.tesis.offers;
 
 import com.loki.tesis.offers.dto.CreateOfferRequestDto;
+import com.loki.tesis.offers.dto.CreateOfferResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,7 @@ public class OfferController {
     private final OfferService offerService;
 
     @PostMapping
-    public ResponseEntity<OfferCreatedResponseDTO> create(@Valid @RequestBody CreateOfferRequestDto request) {
+    public ResponseEntity<CreateOfferResponseDTO> create(@Valid @RequestBody CreateOfferRequestDto request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(offerService.create(request));
     }
 

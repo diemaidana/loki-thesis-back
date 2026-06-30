@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OfferRepository extends JpaRepository<OfferEntity, Long>, JpaSpecificationExecutor<OfferEntity> {
-    boolean findByProductIdAndBuyerId(Long id, Long buyerId);
+    boolean existsByProductIdAndBuyerId(Long id, Long buyerId);
 }
