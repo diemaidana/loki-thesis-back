@@ -147,6 +147,12 @@ public class GlobalExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Email o contraseña incorrectos.");
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    public ProblemDetail handleForbidden(ForbiddenException ex) {
+        log.debug("Forbidden no encontrado: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
+    }
+
     // 403 - El email no fue verificado.
     @ExceptionHandler(EmailNotVerifiedException.class)
     public ProblemDetail handleEmailNotVerified(EmailNotVerifiedException ex) {

@@ -18,6 +18,7 @@ public interface ProductMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "categories", ignore = true)
+    @Mapping(target = "status", ignore = true)
     Product toEntity(ProductRequestDto productRequestDto);
 
     @Mapping(target = "id", ignore = true)
@@ -25,6 +26,8 @@ public interface ProductMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "categories", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "seller", ignore = true)
     void updateEntity(ProductRequestDto request, @MappingTarget Product product);
 
     ProductCreatedResponseDto toProductCreatedDto(Product product);

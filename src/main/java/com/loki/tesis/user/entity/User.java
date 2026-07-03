@@ -3,13 +3,12 @@ package com.loki.tesis.user.entity;
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.loki.tesis.shared.address.entity.Address;
 import com.loki.tesis.user.enums.AccountStatus;
+import com.loki.tesis.auth.credential.enums.RoleType;
 import com.loki.tesis.user.enums.SocialNumberType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.Instant;
 import java.util.UUID;

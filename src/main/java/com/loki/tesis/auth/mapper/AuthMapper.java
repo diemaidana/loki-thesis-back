@@ -30,6 +30,8 @@ public interface AuthMapper {
     @Mapping(target = "loginAttempts", ignore = true)
     @Mapping(target = "lockedUntil", ignore = true)
     @Mapping(target = "lastLockNotificationAt", ignore = true)
+    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "authorities", ignore = true)
     Credential toCredentialEntity(RegisterRequestDTO registerRequestDTO);
 
     @Mapping(source = "user.uuid", target = "uuid")

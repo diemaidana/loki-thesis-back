@@ -4,12 +4,14 @@ import com.loki.tesis.auth.credential.entity.Credential;
 import com.loki.tesis.auth.credential.repository.CredentialRepository;
 import com.loki.tesis.auth.exception.CredentialNotFoundException;
 import com.loki.tesis.auth.exception.EmailAlreadyExistsException;
+import com.loki.tesis.user.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -27,12 +29,10 @@ public class CredentialService {
         return credentialRepository.save(credential);
     }
 
-    @Transactional
-    public Credential updateForLogin(Credential credential) {
-        credentialRepository.save(credential);
-        return credential;
+    public Credential findByUuid(UUID uuid) {
+        return credentialRepository.findByUser_Uuid(uuid)
+                .orElseThrow(() -> new UserNotFoundException("No se encontro un usuario."));
     }
-
     public Credential findByEmail(String email) {
         return  credentialRepository.findByEmail(email)
                 .orElseThrow(() -> new CredentialNotFoundException("No se encontro ningun email: " + email));

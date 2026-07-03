@@ -1,11 +1,12 @@
 package com.loki.tesis.auth.service;
 
 import com.loki.tesis.auth.credential.entity.Credential;
+import com.loki.tesis.auth.credential.enums.RoleType;
 import com.loki.tesis.auth.credential.service.CredentialService;
-import com.loki.tesis.auth.dto.response.AccountResponseDTO;
 import com.loki.tesis.auth.dto.request.LoginRequestDTO;
-import com.loki.tesis.auth.dto.response.LoginResponseDTO;
 import com.loki.tesis.auth.dto.request.RegisterRequestDTO;
+import com.loki.tesis.auth.dto.response.AccountResponseDTO;
+import com.loki.tesis.auth.dto.response.LoginResponseDTO;
 import com.loki.tesis.auth.exception.AccountLockedException;
 import com.loki.tesis.auth.exception.InvalidCredentialsException;
 import com.loki.tesis.auth.mapper.AuthMapper;
@@ -15,12 +16,14 @@ import com.loki.tesis.user.entity.User;
 import com.loki.tesis.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,9 +33,9 @@ public class AuthService {
 
     private final UserService userService;
     private final CredentialService credentialService;
+    private final AuthenticationManager authenticationManager;
     private final AuthMapper authMapper;
     private final EmailVerificationService emailVerificationService;
-    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
     @Value("${app.auth.max-failed-attempts}")
@@ -45,8 +48,7 @@ public class AuthService {
     private int lockoutNotificationThrottleHours;
 
     @Transactional(readOnly = true)
-    public AccountResponseDTO getCurrentUser(String email) {
-        Credential credential = credentialService.findByEmail(email);
+    public AccountResponseDTO getCurrentUser(Credential credential) {
         User user = credential.getUser();
         return authMapper.toAccountResponseDTO(user, credential);
     }
@@ -65,57 +67,70 @@ public class AuthService {
         return authMapper.toAccountResponseDTO(user, saved);
     }
 
-    // noRollbackFor: dejamos commitear los cambios sobre `loginAttempts`, `lockedUntil`
-    // y `lastLockNotificationAt` aunque el método termine lanzando excepción.
     @Transactional(noRollbackFor = {InvalidCredentialsException.class, AccountLockedException.class})
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
-        Credential credential = credentialService
-                .findByEmailOptional(loginRequestDTO.email())
-                .orElseThrow(() -> new InvalidCredentialsException(INVALID_CREDENTIALS_MESSAGE));
+        Credential credential;
 
-        ensureAccountNotLocked(credential);
+        try{
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequestDTO.email(),
+                            loginRequestDTO.password()
+                    )
+            );
+            credential = (Credential) authentication.getPrincipal();
 
-        if (passwordEncoder.matches(loginRequestDTO.password(), credential.getPassword())) {
             return handleSuccessfulLogin(credential);
         }
-
-        handleFailedLogin(credential);
-        throw new InvalidCredentialsException(INVALID_CREDENTIALS_MESSAGE);
-    }
-
-    private void ensureAccountNotLocked(Credential credential) {
-        Instant lockedUntil = credential.getLockedUntil();
-        if (lockedUntil == null) {
-            return;
-        }
-        if (lockedUntil.isAfter(Instant.now())) {
+        catch(LockedException e){
             throw new AccountLockedException(accountLockedMessage());
         }
-        // El lockout ya expiró: limpiamos el estado para empezar de cero.
-        credential.setLockedUntil(null);
-        credential.setLoginAttempts(0);
+        catch (DisabledException e){
+            throw new InvalidCredentialsException(INVALID_CREDENTIALS_MESSAGE);
+        }
+        catch (BadCredentialsException e){
+            handleFailedLoginByEmail(loginRequestDTO.email());
+            throw new InvalidCredentialsException(INVALID_CREDENTIALS_MESSAGE);
+        }
     }
+
 
     private LoginResponseDTO handleSuccessfulLogin(Credential credential) {
         credential.setLoginAttempts(0);
         credential.setLockedUntil(null);
 
-        String token = jwtService.generateToken(credential.getUser(), credential.getEmail());
+        String uuid = credential.getUser().getUuid().toString();
+        String email = credential.getEmail();
+        RoleType role = credential.getRoleType();
+
+        String token = jwtService.generateToken(uuid, email, role);
         String expiresAt = Instant.now().plus(jwtService.getJwtExpiration()).toString();
+
         AccountResponseDTO account = authMapper.toAccountResponseDTO(credential.getUser(), credential);
         return authMapper.toLoginResponseDTO(account, token, expiresAt);
     }
 
-    private void handleFailedLogin(Credential credential) {
-        credential.setLoginAttempts(credential.getLoginAttempts() + 1);
+    private void handleFailedLoginByEmail(String email) {
+        Optional<Credential> opt = credentialService.findByEmailOptional(email);
 
-        if (credential.getLoginAttempts() < maxFailedAttempts) {
-            return;
+        if (opt.isEmpty()) {
+           return;
         }
 
-        credential.setLockedUntil(Instant.now().plus(Duration.ofMinutes(lockoutDurationMinutes)));
-        notifyAccountLockedIfNotThrottled(credential);
-        throw new AccountLockedException(accountLockedMessage());
+        Credential credential = opt.get();
+
+        if(credential.getLockedUntil() != null && credential.getLockedUntil().isBefore(Instant.now())) {
+            credential.setLoginAttempts(0);
+            credential.setLockedUntil(null);
+        }
+
+        credential.setLoginAttempts(credential.getLoginAttempts() + 1);
+
+        if (credential.getLoginAttempts() >= maxFailedAttempts) {
+            credential.setLockedUntil(Instant.now().plus(Duration.ofMinutes(lockoutDurationMinutes)));
+            notifyAccountLockedIfNotThrottled(credential);
+            throw new AccountLockedException(accountLockedMessage());
+        }
     }
 
     private void notifyAccountLockedIfNotThrottled(Credential credential) {
@@ -126,7 +141,7 @@ public class AuthService {
             return;
         }
         credential.setLastLockNotificationAt(Instant.now());
-        emailVerificationService.sendLockNotificationEmail(lockoutDurationMinutes, credential);
+        // emailVerificationService.sendLockNotificationEmail(lockoutDurationMinutes, credential);
     }
 
     private String accountLockedMessage() {

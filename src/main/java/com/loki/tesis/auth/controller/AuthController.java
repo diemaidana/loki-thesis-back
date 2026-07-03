@@ -1,5 +1,6 @@
 package com.loki.tesis.auth.controller;
 
+import com.loki.tesis.auth.credential.entity.Credential;
 import com.loki.tesis.auth.dto.response.AccountResponseDTO;
 import com.loki.tesis.auth.dto.request.LoginRequestDTO;
 import com.loki.tesis.auth.dto.response.LoginResponseDTO;
@@ -13,6 +14,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,13 +26,9 @@ public class AuthController {
 
     private final AuthService authService;
 
-
-
-    // TODO: Implementar con @AuthenticationPrincipal cuando este Spring Security
-    // TODO: BORRAR REQUESTPARAM.
     @GetMapping("/me")
-    public ResponseEntity<AccountResponseDTO> getCurrentUser(@RequestParam @NotBlank @Email String email) {
-        AccountResponseDTO accountResponseDTO = authService.getCurrentUser(email);
+    public ResponseEntity<AccountResponseDTO> getCurrentUser(@AuthenticationPrincipal Credential credential) {
+        AccountResponseDTO accountResponseDTO = authService.getCurrentUser(credential);
         return ResponseEntity.ok(accountResponseDTO);
     }
 
