@@ -1,12 +1,25 @@
 package com.loki.tesis.cart;
 
+import com.loki.tesis.cart.dto.AddCartItemRequestDTO;
+import com.loki.tesis.cart.dto.CartResponseDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/cart")
 @RequiredArgsConstructor
 public class CartController {
-    private CartService cartService;
+    private final CartService cartService;
+
+    // DELETE USER CODE ONCE SECURITY IS IMPLEMENTED
+    @PostMapping("/items/{userCode}")
+    public ResponseEntity<CartResponseDTO> addItems(@Valid @RequestBody AddCartItemRequestDTO request,
+                                                    @PathVariable UUID userCode) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(cartService.addItem(userCode, request));
+    }
 }

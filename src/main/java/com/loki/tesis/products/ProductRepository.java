@@ -16,4 +16,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     Optional<Product> findByProductCode(UUID productCode);
 
     Page<Product> findAllByStatus(ProductStatus productStatus, Specification<Product> specification, Pageable page);
+
+    Optional<Product> findByProductCodeAndStatus(UUID uuid, ProductStatus productStatus);
 }

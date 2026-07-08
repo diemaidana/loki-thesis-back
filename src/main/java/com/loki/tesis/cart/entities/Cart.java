@@ -8,8 +8,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Entity
@@ -41,5 +43,25 @@ public class Cart {
     public void onCreate() {
         cartCode = UuidCreator.getTimeOrderedEpoch();
         createdAt = LocalDateTime.now();
+    }
+
+    public Optional<CartItem> containsItem(Long productId) {
+        return cartItems.stream()
+                .filter(c -> c.getProduct().getId().equals(productId))
+                .findFirst();
+    }
+
+    public void addCartItem(CartItem cartItem) {
+        cartItems.add(cartItem);
+    }
+
+    public BigDecimal getTotal() {
+        return cartItems.stream()
+                .map(cartItem -> cartItem.getUnitPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public Integer getItemCount() {
+        return cartItems.size();
     }
 }

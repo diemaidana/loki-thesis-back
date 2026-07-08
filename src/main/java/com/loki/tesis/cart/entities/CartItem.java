@@ -1,7 +1,9 @@
 package com.loki.tesis.cart.entities;
 
 import com.github.f4b6a3.uuid.UuidCreator;
+import com.loki.tesis.cart.dto.CartItemResponseDTO;
 import com.loki.tesis.products.Product;
+import com.loki.tesis.products.ProductMapper;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +23,7 @@ import java.util.UUID;
 public class CartItem {
 
     @Id
-    @SequenceGenerator(name = "cart_item_seq", sequenceName = "cart_item_id_seq", allocationSize = 1)
+    @SequenceGenerator(name = "carts_item_seq", sequenceName = "cart_item_id_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "carts_item_seq")
     private Long id;
 
@@ -49,5 +51,9 @@ public class CartItem {
     public void onCreate() {
         cartItemCode = UuidCreator.getTimeOrderedEpoch();
         addedAt = LocalDateTime.now();
+    }
+
+    public void updateQuantity(Integer quantity) {
+        this.quantity += quantity;
     }
 }
