@@ -1,9 +1,7 @@
 package com.loki.tesis.cart.entities;
 
 import com.github.f4b6a3.uuid.UuidCreator;
-import com.loki.tesis.cart.dto.CartItemResponseDTO;
 import com.loki.tesis.products.Product;
-import com.loki.tesis.products.ProductMapper;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

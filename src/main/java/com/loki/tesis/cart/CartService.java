@@ -28,6 +28,7 @@ public class CartService {
     private final UserRepository userRepository;
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final CartMapper cartMapper;
 
     public CartResponseDTO addItem(UUID userCode, AddCartItemRequestDTO request) {
         User buyer = userRepository.findByUuid(userCode)
@@ -45,7 +46,7 @@ public class CartService {
 
         checkStock(product.getStock(), request.quantity());
 
-        Optional<CartItem> cartItemOptional = cartItemRepository.findByProductId(product.getId());
+        Optional<CartItem> cartItemOptional = cart.containsItem(product.getId());
 
         if(cartItemOptional.isPresent()) {
             CartItem cartItem = cartItemOptional.get();
@@ -59,14 +60,7 @@ public class CartService {
             cart.addCartItem(cartItem);
         }
 
-        Cart saved = cartRepository.save(cart);
-
-        return new CartResponseDTO(
-                saved.getCartCode(),
-                saved.getTotal(),
-                saved.getItemCount(),
-                createCartItemsResponse(saved.getCartItems())
-        );
+        return cartMapper.toCartResponseDTO(cartRepository.save(cart));
     }
 
     private CartItem createCartItem(Product product, Integer quantity) {
