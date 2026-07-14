@@ -29,7 +29,8 @@ public class CategoryController {
     }
 
     @PutMapping("/{categoryCode}")
-    public ResponseEntity<CategoryResponseDTO> update(@PathVariable UUID categoryCode, CategoryRequestDTO request) {
+    public ResponseEntity<CategoryResponseDTO> update(@PathVariable UUID categoryCode,
+                                                      @Valid @RequestBody CategoryRequestDTO request) {
         return ResponseEntity.ok(categoryService.update(categoryCode, request));
     }
 
