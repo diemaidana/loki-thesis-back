@@ -13,6 +13,7 @@ import com.loki.tesis.user.exception.UserNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -43,7 +44,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CredentialNotFoundException.class)
     public ProblemDetail handleCredentialNotFound(CredentialNotFoundException ex) {
         log.debug("Credential no encontrada: {}", ex.getMessage());
-        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Credenciales no encontradas.");
     }
 
     // 404 - Not Found
@@ -51,23 +52,23 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ProblemDetail handleUserNotFound(UserNotFoundException ex) {
         log.debug("Usuario no encontrado: {}", ex.getMessage());
-        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Usuario no encontrado.");
     }
 
 
-    // 409 - Conflict
+    // 202 - Conflict
     // Se dispara cuando el email ya se encuentra registrado.
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ProblemDetail handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
         log.debug("Email ya registrado: {}", ex.getMessage());
-        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.ACCEPTED, "Si el email no estaba registrado, te enviamos un email de verificación.");
     }
 
     // 409 - Conflict
     @ExceptionHandler(UserAlreadyInactiveException.class)
     public ProblemDetail handleUserAlreadyInactive(UserAlreadyInactiveException ex) {
         log.debug("Usuario ya esta inactivo: {}", ex.getMessage());
-        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "La cuenta ya está inactiva.");
     }
 
     // 400 - BadRequest
@@ -146,6 +147,14 @@ public class GlobalExceptionHandler {
         log.debug("Credential no encontrado: {}", ex.getMessage());
         return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Email o contraseña incorrectos.");
     }
+
+    //401
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ProblemDetail handleOptimisticLockingFailure(OptimisticLockingFailureException ex) {
+        log.warn("Optimistic locking failure no encontrado: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Email o contraseña incorrectos.");
+    }
+
 
     @ExceptionHandler(ForbiddenException.class)
     public ProblemDetail handleForbidden(ForbiddenException ex) {

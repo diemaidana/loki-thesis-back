@@ -8,6 +8,8 @@ import com.loki.tesis.shared.address.mapper.AddressMapper;
 import com.loki.tesis.user.entity.User;
 import org.mapstruct.*;
 
+import java.time.Instant;
+
 @Mapper(
             componentModel = "spring",
             unmappedTargetPolicy = ReportingPolicy.ERROR,
@@ -30,8 +32,9 @@ public interface AuthMapper {
     @Mapping(target = "loginAttempts", ignore = true)
     @Mapping(target = "lockedUntil", ignore = true)
     @Mapping(target = "lastLockNotificationAt", ignore = true)
-    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "roleType", ignore = true)
     @Mapping(target = "authorities", ignore = true)
+    @Mapping(target = "version", ignore = true)
     Credential toCredentialEntity(RegisterRequestDTO registerRequestDTO);
 
     @Mapping(source = "user.uuid", target = "uuid")
@@ -43,5 +46,5 @@ public interface AuthMapper {
     @Mapping(source = "accountResponseDTO", target = "account")
     @Mapping(source = "token", target = "token")
     @Mapping(source = "expiresAt", target = "expiresAt")
-    LoginResponseDTO toLoginResponseDTO(AccountResponseDTO accountResponseDTO, String token,  String expiresAt);
+    LoginResponseDTO toLoginResponseDTO(AccountResponseDTO accountResponseDTO, String token,  Instant expiresAt);
 }

@@ -11,9 +11,11 @@ import com.loki.tesis.auth.exception.AccountLockedException;
 import com.loki.tesis.auth.exception.InvalidCredentialsException;
 import com.loki.tesis.auth.mapper.AuthMapper;
 import com.loki.tesis.auth.verification.service.EmailVerificationService;
+import com.loki.tesis.shared.security.dto.IssuedToken;
 import com.loki.tesis.shared.security.service.JwtService;
 import com.loki.tesis.user.entity.User;
 import com.loki.tesis.user.service.UserService;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.*;
@@ -103,8 +105,9 @@ public class AuthService {
         String email = credential.getEmail();
         RoleType role = credential.getRoleType();
 
-        String token = jwtService.generateToken(uuid, email, role);
-        String expiresAt = Instant.now().plus(jwtService.getJwtExpiration()).toString();
+        IssuedToken issuedToken = jwtService.generateToken(uuid, email, role);
+        String token = issuedToken.token();
+        Instant expiresAt = issuedToken.expiresAt();
 
         AccountResponseDTO account = authMapper.toAccountResponseDTO(credential.getUser(), credential);
         return authMapper.toLoginResponseDTO(account, token, expiresAt);
@@ -124,12 +127,16 @@ public class AuthService {
             credential.setLockedUntil(null);
         }
 
-        credential.setLoginAttempts(credential.getLoginAttempts() + 1);
+        try {
+            credential.setLoginAttempts(credential.getLoginAttempts() + 1);
 
-        if (credential.getLoginAttempts() >= maxFailedAttempts) {
-            credential.setLockedUntil(Instant.now().plus(Duration.ofMinutes(lockoutDurationMinutes)));
-            notifyAccountLockedIfNotThrottled(credential);
-            throw new AccountLockedException(accountLockedMessage());
+            if (credential.getLoginAttempts() >= maxFailedAttempts) {
+                credential.setLockedUntil(Instant.now().plus(Duration.ofMinutes(lockoutDurationMinutes)));
+                notifyAccountLockedIfNotThrottled(credential);
+                throw new AccountLockedException(accountLockedMessage());
+            }
+        }catch (OptimisticLockException e) {
+            return ;
         }
     }
 

@@ -53,10 +53,15 @@ public class Credential implements UserDetails {
     @Column(name = "credential_roles")
     private RoleType roleType;
 
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
     @PrePersist
     public void prePersist() {
         this.roleType = RoleType.ROLE_USER;
         this.loginAttempts = 0;
+        this.version = 0L;
     }
 
     @Override

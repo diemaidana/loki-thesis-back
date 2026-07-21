@@ -1,11 +1,13 @@
 package com.loki.tesis.shared.security.service;
 
 import com.loki.tesis.auth.credential.enums.RoleType;
+import com.loki.tesis.shared.security.dto.IssuedToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,10 +15,12 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class JwtService {
 
@@ -28,19 +32,41 @@ public class JwtService {
 
     private SecretKey secretKey;
 
+    @Value("${app.jwt.issuer}")
+    private String issuer;
+
+    @Value("${app.jwt.audience}")
+    private String audience;
+
     public String extractUuid(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
     @PostConstruct
     public void init() {
-        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+        byte[] keyBytes;
+
+        try{
+            keyBytes = Decoders.BASE64.decode(secret);
+        }catch(IllegalArgumentException e){
+            throw new IllegalStateException("JWT secret con formato inválido. Debe ser Base64 válido.");
+        }
+
+        if(keyBytes.length < 64){
+            throw new IllegalStateException("JWT secret muy corto: "+ keyBytes.length +" bytes. Se requiere mínimo 64 bytes (HS512).");
+        }
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+        log.info("JWT secret validado: {} bytes ({}bit)", keyBytes.length, keyBytes.length * 8);
     }
 
-    public String generateToken(String uuid, String email, RoleType roleType) {
+    public IssuedToken generateToken(String uuid, String email, RoleType roleType) {
+        Instant now = Instant.now();
+        Instant expiresAt = now.plus(getJwtExpiration());
+
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", List.of(roleType.name()));
-        return buildToken(claims, uuid, email, expirationMs);
+        String token = buildToken(claims, uuid, email, now, expiresAt);
+        return new IssuedToken(token, expiresAt);
     }
 
     public Duration getJwtExpiration() {
@@ -67,6 +93,8 @@ public class JwtService {
     private <T> Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith((this.secretKey))
+                .requireAudience(audience)
+                .requireIssuer(issuer)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
@@ -81,14 +109,20 @@ public class JwtService {
     }
     */
 
-    private String buildToken(Map<String, Object> extraClaims, String subject, String email, long expirationMs) {
+    private String buildToken(Map<String, Object> extraClaims, String subject, String email, Instant now, Instant expiresAt) {
+
         return Jwts.builder().claims(extraClaims)
+                .issuer(issuer)
+                .audience().add(audience)
+                .and()
                 .subject(subject)
                 .claim("email", email)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expirationMs))
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiresAt))
                 .signWith(secretKey)
                 .compact();
+
+
     }
 
     private boolean isTokenExpired(String token) {

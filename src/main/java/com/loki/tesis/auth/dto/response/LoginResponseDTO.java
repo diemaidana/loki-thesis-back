@@ -1,7 +1,9 @@
 package com.loki.tesis.auth.dto.response;
 
+import java.time.Instant;
+
 public record LoginResponseDTO (
         String token,
-        String expiresAt,
+        Instant expiresAt,
         AccountResponseDTO account
 ) {}
