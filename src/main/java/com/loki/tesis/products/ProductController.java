@@ -5,14 +5,18 @@ import com.loki.tesis.products.dtos.request.ProductRequestDto;
 import com.loki.tesis.products.dtos.response.ProductCreatedResponseDto;
 import com.loki.tesis.products.dtos.response.ProductDetailResponseDto;
 import com.loki.tesis.products.dtos.response.ProductSummaryResponseDto;
+import com.loki.tesis.shared.validation.ValidImage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,16 +42,30 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductSummaryResponseDto>> getAll(@RequestParam(required = false) UUID sellerUuid) {
-        List<ProductSummaryResponseDto> products;
+    public ResponseEntity<Page<ProductCreatedResponseDto>> getAll(@RequestParam(required = false) String title,
+                                                                  @RequestParam(required = false) List<UUID> categoryCodes,
+                                                                  @RequestParam(required = false) BigDecimal minPrice,
+                                                                  @RequestParam(required = false) BigDecimal maxPrice,
+                                                                  Pageable page) {
+        return ResponseEntity.ok(productService.getAllCreated(title, categoryCodes, minPrice, maxPrice, page));
+    }
 
-        if(sellerUuid == null) {
-            products = productService.getAll();
-        } else {
-            products = productService.getProductsBySellerUuid(sellerUuid);
-        }
+    @GetMapping("/published")
+    public ResponseEntity<Page<ProductSummaryResponseDto>> getAllPublished(@RequestParam(required = false) String title,
+                                                                  @RequestParam(required = false) List<UUID> categoryCodes,
+                                                                  @RequestParam(required = false) BigDecimal minPrice,
+                                                                  @RequestParam(required = false) BigDecimal maxPrice,
+                                                                  Pageable page) {
+        return ResponseEntity.ok(productService.getAllPublished(title, categoryCodes, minPrice, maxPrice, page));
+    }
 
-        return ResponseEntity.ok(products);
+    @GetMapping("/unpublished")
+    public ResponseEntity<Page<ProductCreatedResponseDto>> getAllUnpublished(@RequestParam(required = false) String title,
+                                                                           @RequestParam(required = false) List<UUID> categoryCodes,
+                                                                           @RequestParam(required = false) BigDecimal minPrice,
+                                                                           @RequestParam(required = false) BigDecimal maxPrice,
+                                                                           Pageable page) {
+        return ResponseEntity.ok(productService.getAllUnpublished(title, categoryCodes, minPrice, maxPrice, page));
     }
 
 
@@ -71,8 +89,7 @@ public class ProductController {
     }
 
     @PostMapping(value = "/{productCode}/uploadImages", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ProductSummaryResponseDto> uploadImages(@PathVariable UUID productCode,
-                                                                  @RequestPart List<MultipartFile> images,
+    public ResponseEntity<ProductSummaryResponseDto> uploadImages(@PathVariable UUID productCode, @RequestPart List<@ValidImage MultipartFile> images,
                                                                   @AuthenticationPrincipal Credential credential) {
         return ResponseEntity.ok(productService.uploadImages(productCode, images, credential));
     }

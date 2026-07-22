@@ -13,13 +13,23 @@ import com.loki.tesis.products.dtos.response.ProductDetailResponseDto;
 import com.loki.tesis.products.dtos.response.ProductSummaryResponseDto;
 import com.loki.tesis.user.entity.User;
 import com.loki.tesis.user.service.UserService;
+import com.loki.tesis.shared.validation.ImageValidator;
+import com.loki.tesis.user.entity.User;
+import com.loki.tesis.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,12 +40,16 @@ public class ProductService {
 
     private final CategoryRepository categoryRepository;
     private final ProductImageService productImageService;
+    private final UserRepository userRepository;
 
     private final UserService userService;
     private final CredentialService credentialService;
 
     @Transactional
     public ProductCreatedResponseDto create(ProductRequestDto productRequestDto, Credential credential) {
+        /* User user = userRepository.findByUuid(productRequestDto.user())
+                .orElseThrow(() -> new EntityNotFoundException("User not found."));
+         */
 
         User seller = credential.getUser();
 
@@ -46,8 +60,8 @@ public class ProductService {
         validateCategories(categories, productRequestDto.categories());
 
         Product product = productMapper.toEntity(productRequestDto);
-        product.setSeller(seller);
         product.setCategories(categories);
+        product.setSeller(user);
 
         return productMapper.toProductCreatedDto(productRepository.save(product));
     }
@@ -67,7 +81,7 @@ public class ProductService {
     public ProductCreatedResponseDto update(UUID productCode, ProductRequestDto request, Credential credential) {
 
         Product product = getProductEntity(productCode);
-        ensureCallerIsSeller(credential, product.getSeller()); // Verifico que el email coincida.
+        ensureCallerIsSeller(credential, product.getSeller());
         validateSellerEmailVerified(credential.getUser());
         productMapper.updateEntity(request, product);
 
@@ -80,11 +94,16 @@ public class ProductService {
         return productMapper.toProductCreatedDto(product);
     }
 
-    public List<ProductSummaryResponseDto> getAll() {
-        return productRepository.findAll()
-                .stream()
-                .map(p -> productMapper.toProductSummaryDto(p, productImageService.getCoverImageUrl(p.getId())))
-                .toList();
+    public Page<ProductSummaryResponseDto> getAllPublished(String title,
+                                                  List<UUID> categoryCodes,
+                                                  BigDecimal minPrice,
+                                                  BigDecimal maxPrice,
+                                                  Pageable page) {
+
+        Specification<Product> specification = getSpecificationFilter(title, categoryCodes, minPrice, maxPrice);
+
+        return productRepository.findAllByStatus(ProductStatus.PUBLISHED, specification, page)
+                .map(product -> productMapper.toProductSummaryDto(product, productImageService.getCoverImageUrl(product.getId())));
     }
 
     public ProductDetailResponseDto getProductDetailsByProductCode(UUID productCode) {
@@ -114,11 +133,20 @@ public class ProductService {
         Product product = getProductEntity(productCode);
         ensureCallerIsSeller(credential, product.getSeller()); // Verifico que el email coincida.
         validateSellerEmailVerified(credential.getUser());
-        product.setStatus(ProductStatus.UNPUBLISHED);
+
+        if(product.getStatus().equals(ProductStatus.DELETED))
+            throw new IllegalArgumentException("Product is already deleted.");
+
+        product.setStatus(ProductStatus.DELETED);
     }
 
     @Transactional
     public ProductSummaryResponseDto uploadImages(UUID productCode, List<MultipartFile> images, Credential credential) {
+
+        for (MultipartFile image : images) {
+            if(ImageValidator.isSizeExceeded(image))
+                throw new IllegalArgumentException("Images must be under 5MB.");
+        }
 
         Product product = getProductEntity(productCode);
         ensureCallerIsSeller(credential, product.getSeller()); // Verifico que el email coincida.
@@ -144,6 +172,42 @@ public class ProductService {
                 .stream()
                 .map(p -> productMapper.toProductSummaryDto(p, productImageService.getCoverImageUrl(p.getId())))
                 .toList();
+    }
+
+
+    public Page<ProductCreatedResponseDto> getAllUnpublished(String title,
+                                                             List<UUID> categoryCodes,
+                                                             BigDecimal minPrice,
+                                                             BigDecimal maxPrice,
+                                                             Pageable page) {
+
+        Specification<Product> specification = getSpecificationFilter(title, categoryCodes, minPrice, maxPrice);
+
+        return productRepository.findAllByStatus(ProductStatus.UNPUBLISHED, specification, page)
+                .map(productMapper::toProductCreatedDto);
+    }
+
+    public Page<ProductCreatedResponseDto> getAllCreated(String title,
+                                                         List<UUID> categoryCodes,
+                                                         BigDecimal minPrice,
+                                                         BigDecimal maxPrice,
+                                                         Pageable page) {
+
+        Specification<Product> specification = getSpecificationFilter(title, categoryCodes, minPrice, maxPrice);
+
+        return productRepository.findAll(specification, page)
+                .map(productMapper::toProductCreatedDto);
+    }
+
+    private Specification<Product> getSpecificationFilter(String title,
+                                                          List<UUID> categoryCodes,
+                                                          BigDecimal minPrice,
+                                                          BigDecimal maxPrice) {
+        return Specification.allOf(
+                ProductSpecification.titleContains(title),
+                ProductSpecification.hasCategories(categoryCodes),
+                ProductSpecification.priceBetween(minPrice, maxPrice)
+        );
     }
 
     // Metodos privados
