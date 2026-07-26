@@ -31,6 +31,7 @@ public record ProductRequestDto(
         @NotNull(message = "Stock is mandatory.")
         @PositiveOrZero(message = "Stock must be higher than 0.")
         Integer stock
+
 ) {
         @AssertTrue(message = "Minimum price cannot be higher than price.")
         public Boolean isMinimumPriceValid() {

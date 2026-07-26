@@ -1,5 +1,9 @@
 package com.loki.tesis.products;
 
+import com.loki.tesis.auth.credential.entity.Credential;
+import com.loki.tesis.auth.credential.service.CredentialService;
+import com.loki.tesis.auth.exception.EmailNotVerifiedException;
+import com.loki.tesis.auth.exception.ForbiddenException;
 import com.loki.tesis.categories.CategoryEntity;
 import com.loki.tesis.categories.CategoryRepository;
 import com.loki.tesis.productImages.services.ProductImageService;
@@ -7,6 +11,8 @@ import com.loki.tesis.products.dtos.request.ProductRequestDto;
 import com.loki.tesis.products.dtos.response.ProductCreatedResponseDto;
 import com.loki.tesis.products.dtos.response.ProductDetailResponseDto;
 import com.loki.tesis.products.dtos.response.ProductSummaryResponseDto;
+import com.loki.tesis.user.entity.User;
+import com.loki.tesis.user.service.UserService;
 import com.loki.tesis.shared.validation.ImageValidator;
 import com.loki.tesis.user.entity.User;
 import com.loki.tesis.user.repository.UserRepository;
@@ -36,10 +42,18 @@ public class ProductService {
     private final ProductImageService productImageService;
     private final UserRepository userRepository;
 
+    private final UserService userService;
+    private final CredentialService credentialService;
+
     @Transactional
-    public ProductCreatedResponseDto create(ProductRequestDto productRequestDto) {
-        User user = userRepository.findByUuid(productRequestDto.user())
+    public ProductCreatedResponseDto create(ProductRequestDto productRequestDto, Credential credential) {
+        /* User user = userRepository.findByUuid(productRequestDto.user())
                 .orElseThrow(() -> new EntityNotFoundException("User not found."));
+         */
+
+        User seller = credential.getUser();
+
+        validateSellerEmailVerified(seller);
 
         Set<CategoryEntity> categories = getCategories(productRequestDto.categories());
 
@@ -64,9 +78,11 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductCreatedResponseDto update(UUID productCode, ProductRequestDto request) {
-        Product product = getProductEntity(productCode);
+    public ProductCreatedResponseDto update(UUID productCode, ProductRequestDto request, Credential credential) {
 
+        Product product = getProductEntity(productCode);
+        ensureCallerIsSeller(credential, product.getSeller());
+        validateSellerEmailVerified(credential.getUser());
         productMapper.updateEntity(request, product);
 
         Set<CategoryEntity> categories = getCategories(request.categories());
@@ -112,8 +128,11 @@ public class ProductService {
     }
 
     @Transactional
-    public void delete(UUID productCode) {
+    public void delete(UUID productCode, Credential credential) {
+
         Product product = getProductEntity(productCode);
+        ensureCallerIsSeller(credential, product.getSeller()); // Verifico que el email coincida.
+        validateSellerEmailVerified(credential.getUser());
 
         if(product.getStatus().equals(ProductStatus.DELETED))
             throw new IllegalArgumentException("Product is already deleted.");
@@ -122,7 +141,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductSummaryResponseDto uploadImages(UUID productCode, List<MultipartFile> images) {
+    public ProductSummaryResponseDto uploadImages(UUID productCode, List<MultipartFile> images, Credential credential) {
 
         for (MultipartFile image : images) {
             if(ImageValidator.isSizeExceeded(image))
@@ -130,6 +149,8 @@ public class ProductService {
         }
 
         Product product = getProductEntity(productCode);
+        ensureCallerIsSeller(credential, product.getSeller()); // Verifico que el email coincida.
+        validateSellerEmailVerified(credential.getUser());
 
         if(images.isEmpty() || images.size() > 5)
             throw new IllegalArgumentException("At least one image must be provided.");
@@ -145,6 +166,14 @@ public class ProductService {
 
         return productMapper.toProductSummaryDto(product, filenames.getFirst());
     }
+
+    public List<ProductSummaryResponseDto> getProductsBySellerUuid(UUID sellerUuid) {
+        return productRepository.findBySeller_Uuid(sellerUuid)
+                .stream()
+                .map(p -> productMapper.toProductSummaryDto(p, productImageService.getCoverImageUrl(p.getId())))
+                .toList();
+    }
+
 
     public Page<ProductCreatedResponseDto> getAllUnpublished(String title,
                                                              List<UUID> categoryCodes,
@@ -179,5 +208,21 @@ public class ProductService {
                 ProductSpecification.hasCategories(categoryCodes),
                 ProductSpecification.priceBetween(minPrice, maxPrice)
         );
+    }
+
+    // Metodos privados
+
+    // Verifico que el usuario tenga el email verificado.
+    private void validateSellerEmailVerified(User seller) {
+        if(!credentialService.isEmailVerifiedForUser(seller.getId())){
+            throw new EmailNotVerifiedException("Seller's email must be verified.");
+        }
+    }
+
+    // Verifico que el email de la credencial y producto sean el mismo.
+    private void ensureCallerIsSeller(Credential caller, User seller) {
+        if(! (Objects.equals(caller.getUser().getUuid(), seller.getUuid()))){
+            throw new ForbiddenException("You don't have permission to modify this product.\"");
+        }
     }
 }

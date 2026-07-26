@@ -7,7 +7,6 @@ import com.loki.tesis.products.dtos.response.ProductSummaryResponseDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
 
@@ -19,6 +18,7 @@ public interface ProductMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "categories", ignore = true)
+    @Mapping(target = "status", ignore = true)
     @Mapping(target = "seller", ignore = true)
     Product toEntity(ProductRequestDto productRequestDto);
 
@@ -27,6 +27,8 @@ public interface ProductMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "categories", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "seller", ignore = true)
     void updateEntity(ProductRequestDto request, @MappingTarget Product product);
 
     ProductCreatedResponseDto toProductCreatedDto(Product product);

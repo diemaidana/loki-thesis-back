@@ -1,6 +1,6 @@
 package com.loki.tesis.shared.handler;
 
-import com.loki.tesis.auth.exception.CredentialNotFoundException;
+import com.loki.tesis.auth.exception.*;
 import com.loki.tesis.auth.verification.verificationToken.exception.InvalidTokenTypeException;
 import com.loki.tesis.auth.verification.verificationToken.exception.TokenAlreadyUsedException;
 import com.loki.tesis.auth.verification.verificationToken.exception.TokenExpiredException;
@@ -8,12 +8,12 @@ import com.loki.tesis.auth.verification.verificationToken.exception.TokenNotFoun
 import com.loki.tesis.shared.email.exception.EmailSendException;
 import com.loki.tesis.shared.exception.dto.GlobalError;
 import com.loki.tesis.shared.exception.dto.ValidationError;
-import com.loki.tesis.auth.exception.EmailAlreadyExistsException;
 import com.loki.tesis.user.exception.UserAlreadyInactiveException;
 import com.loki.tesis.user.exception.UserNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CredentialNotFoundException.class)
     public ProblemDetail handleCredentialNotFound(CredentialNotFoundException ex) {
         log.debug("Credential no encontrada: {}", ex.getMessage());
-        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Credenciales no encontradas.");
     }
 
     // 404 - Not Found
@@ -52,23 +52,23 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ProblemDetail handleUserNotFound(UserNotFoundException ex) {
         log.debug("Usuario no encontrado: {}", ex.getMessage());
-        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Usuario no encontrado.");
     }
 
 
-    // 409 - Conflict
+    // 202 - Conflict
     // Se dispara cuando el email ya se encuentra registrado.
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ProblemDetail handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
         log.debug("Email ya registrado: {}", ex.getMessage());
-        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.ACCEPTED, "Si el email no estaba registrado, te enviamos un email de verificación.");
     }
 
     // 409 - Conflict
     @ExceptionHandler(UserAlreadyInactiveException.class)
     public ProblemDetail handleUserAlreadyInactive(UserAlreadyInactiveException ex) {
         log.debug("Usuario ya esta inactivo: {}", ex.getMessage());
-        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "La cuenta ya está inactiva.");
     }
 
     // 400 - BadRequest
@@ -141,13 +141,46 @@ public class GlobalExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
+    // 401 - Contraseña o email incorrectos.
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex) {
+        log.debug("Credential no encontrado: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Email o contraseña incorrectos.");
+    }
+
+    //401
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ProblemDetail handleOptimisticLockingFailure(OptimisticLockingFailureException ex) {
+        log.warn("Optimistic locking failure no encontrado: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Email o contraseña incorrectos.");
+    }
+
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ProblemDetail handleForbidden(ForbiddenException ex) {
+        log.debug("Forbidden no encontrado: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
+    }
+
+    // 403 - El email no fue verificado.
+    @ExceptionHandler(EmailNotVerifiedException.class)
+    public ProblemDetail handleEmailNotVerified(EmailNotVerifiedException ex) {
+        log.debug("Email no encontrado: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "El email no fue verificado.");
+    }
+
     // 400 - Tipo de token invalido.
     @ExceptionHandler(InvalidTokenTypeException.class)
     public ProblemDetail handleInvalidTokenType(InvalidTokenTypeException ex) {
         log.debug("Tipo de token invalido: {}", ex.getMessage());
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
-
+    // 423 - Cuenta bloqueada por repetidos intentos de login fallidos
+    @ExceptionHandler(AccountLockedException.class)
+    public ProblemDetail handleAccountLocked(AccountLockedException ex) {
+        log.debug("Usuario bloqueado: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.LOCKED, ex.getMessage());
+    }
     // 410 - Gone - El token existió pero expiró
     @ExceptionHandler(TokenExpiredException.class)
     public ProblemDetail handleTokenExpired(TokenExpiredException ex) {

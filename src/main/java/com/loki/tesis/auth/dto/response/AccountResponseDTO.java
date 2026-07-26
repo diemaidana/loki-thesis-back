@@ -1,4 +1,4 @@
-package com.loki.tesis.auth.dto;
+package com.loki.tesis.auth.dto.response;
 
 import com.loki.tesis.shared.address.dto.AddressDTO;
 import com.loki.tesis.user.enums.AccountStatus;

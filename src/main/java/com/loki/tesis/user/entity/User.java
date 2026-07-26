@@ -1,14 +1,14 @@
 package com.loki.tesis.user.entity;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import com.loki.tesis.shared.address.entity.Address;
 import com.loki.tesis.user.enums.AccountStatus;
+import com.loki.tesis.auth.credential.enums.RoleType;
 import com.loki.tesis.user.enums.SocialNumberType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -27,7 +27,6 @@ public class User {
     private Long id;
 
     // ID publico no coincide con la base de datos para seguridad y busqueda.
-    // @UuidGenerator
     @Column(unique = true, nullable = false, updatable = false)
     private UUID uuid;
 
@@ -44,7 +43,6 @@ public class User {
     @Column(nullable = false, length = 50)
     private String lastName;
 
-    // @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -61,7 +59,7 @@ public class User {
 
     @PrePersist
     private void prePersist() {
-        this.uuid = UUID.randomUUID();
+        this.uuid = UuidCreator.getTimeOrderedEpoch();
         this.createdAt = Instant.now();
     }
 }

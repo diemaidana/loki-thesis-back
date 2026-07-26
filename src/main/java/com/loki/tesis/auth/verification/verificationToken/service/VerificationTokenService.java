@@ -27,8 +27,7 @@ public class VerificationTokenService {
     public String generate(Credential credential, TokenType tokenType){
 
         /* Invalido los tokens previos */
-        tokenRepository.findByCredentialAndTokenTypeAndUsedAtIsNull(credential, tokenType)
-                .ifPresent(prev -> prev.setUsedAt(Instant.now()));
+        tokenRepository.invalidateActiveTokens(credential, tokenType, Instant.now());
 
         /* Generamos un token nuevo para cualquier TokenType. */
         byte[] token = new byte[32];

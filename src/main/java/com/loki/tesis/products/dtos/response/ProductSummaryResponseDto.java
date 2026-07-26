@@ -9,6 +9,7 @@ public record ProductSummaryResponseDto(
         String title,
         String description,
         BigDecimal price,
+        Integer stock,
         LocalDateTime createdAt,
         String coverImageUrl
 ) {
