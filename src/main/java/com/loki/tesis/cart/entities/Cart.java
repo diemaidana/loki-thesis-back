@@ -1,8 +1,11 @@
 package com.loki.tesis.cart.entities;
 
 import com.github.f4b6a3.uuid.UuidCreator;
+import com.loki.tesis.products.Product;
 import com.loki.tesis.user.entity.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,14 +48,9 @@ public class Cart {
         createdAt = LocalDateTime.now();
     }
 
-    public Optional<CartItem> containsItem(Long productId) {
+    private Boolean containsItem(UUID productCode) {
         return cartItems.stream()
-                .filter(c -> c.getProduct().getId().equals(productId))
-                .findFirst();
-    }
-
-    public void addCartItem(CartItem cartItem) {
-        cartItems.add(cartItem);
+                .anyMatch(c -> c.getProduct().getProductCode().equals(productCode));
     }
 
     public BigDecimal getTotal() {
@@ -63,5 +61,33 @@ public class Cart {
 
     public Integer getItemCount() {
         return cartItems.size();
+    }
+
+    private void addAmount(UUID productCode, Integer quantity) {
+        cartItems.stream()
+                .filter(c -> c.getProduct().getProductCode().equals(productCode))
+                .findFirst()
+                .ifPresent(c -> c.addQuantity(quantity));
+    }
+
+    public void addItem(Product product, Integer quantity) {
+        if (containsItem(product.getProductCode())) {
+            addAmount(product.getProductCode(), quantity);
+        } else {
+            CartItem cartItem = new CartItem();
+            cartItem.setCart(this);
+            cartItem.setProduct(product);
+            cartItem.setQuantity(quantity);
+            cartItem.setUnitPrice(product.getPrice());
+            cartItems.add(cartItem);
+        }
+    }
+
+    public Integer getProductQuantity(Product product) {
+        return cartItems.stream()
+                .filter(c -> c.getProduct().equals(product))
+                .map(CartItem::getQuantity)
+                .findFirst()
+                .orElse(0);
     }
 }

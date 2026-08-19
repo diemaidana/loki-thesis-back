@@ -16,6 +16,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,13 +24,14 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CartService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final CartRepository cartRepository;
-    private final CartItemRepository cartItemRepository;
     private final CartMapper cartMapper;
 
+    @Transactional
     public CartResponseDTO addItem(UUID userCode, AddCartItemRequestDTO request) {
         User buyer = userRepository.findByUuid(userCode)
                 .orElseThrow(() -> new EntityNotFoundException("User not found."));
@@ -44,32 +46,11 @@ public class CartService {
         Product product = productRepository.findByProductCodeAndStatus(request.productCode(), ProductStatus.PUBLISHED)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found."));
 
-        checkStock(product.getStock(), request.quantity());
+        checkStock(product.getStock(), request.quantity() + cart.getProductQuantity(product));
 
-        Optional<CartItem> cartItemOptional = cart.containsItem(product.getId());
-
-        if(cartItemOptional.isPresent()) {
-            CartItem cartItem = cartItemOptional.get();
-            //Integer actualQuantity = cartItem.getQuantity(); //cart.getCartItemQuantity(product.getId());
-            checkStock(product.getStock(), cartItem.getQuantity() + request.quantity());
-            cartItem.updateQuantity(request.quantity());
-            //cart.updateCartItem(cartItem.get(), request.quantity());
-        } else {
-            CartItem cartItem = createCartItem(product, request.quantity());
-            cartItem.setCart(cart);
-            cart.addCartItem(cartItem);
-        }
+        cart.addItem(product, request.quantity());
 
         return cartMapper.toCartResponseDTO(cartRepository.save(cart));
-    }
-
-    private CartItem createCartItem(Product product, Integer quantity) {
-        CartItem cartItem =  new CartItem();
-        cartItem.setProduct(product);
-        cartItem.setQuantity(quantity);
-        cartItem.setUnitPrice(product.getPrice());
-
-        return cartItem;
     }
 
     private void checkStock(Integer productStock, int quantityRequested) {

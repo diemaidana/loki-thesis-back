@@ -51,7 +51,7 @@ public class CartItem {
         addedAt = LocalDateTime.now();
     }
 
-    public void updateQuantity(Integer quantity) {
+    public void addQuantity(Integer quantity) {
         this.quantity += quantity;
     }
 }
