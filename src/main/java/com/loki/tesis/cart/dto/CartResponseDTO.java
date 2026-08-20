@@ -8,6 +8,6 @@ public record CartResponseDTO(
         UUID cartCode,
         BigDecimal total,
         Integer itemCount,
-        List<CartItemResponseDTO> items
+        List<CartItemResponseDTO> cartItems
 ) {
 }
