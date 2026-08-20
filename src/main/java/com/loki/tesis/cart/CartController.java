@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/cart")
+@RequestMapping("/api/carts")
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
@@ -21,5 +21,10 @@ public class CartController {
     public ResponseEntity<CartResponseDTO> addItems(@Valid @RequestBody AddCartItemRequestDTO request,
                                                     @PathVariable UUID userCode) {
         return ResponseEntity.status(HttpStatus.CREATED).body(cartService.addItem(userCode, request));
+    }
+
+    @GetMapping("/{userCode}")
+    public ResponseEntity<CartResponseDTO> getCart(@PathVariable UUID userCode) {
+        return ResponseEntity.ok(cartService.getCart(userCode));
     }
 }

@@ -57,4 +57,13 @@ public class CartService {
         if(productStock < quantityRequested)
             throw new IllegalArgumentException("Stock insufficient.");
     }
+
+    public CartResponseDTO getCart(UUID userCode) {
+        User user = userRepository.findByUuid(userCode)
+                .orElseThrow(() -> new EntityNotFoundException("User not found."));
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Cart not found."));
+
+        return cartMapper.toCartResponseDTO(cart);
+    }
 }
