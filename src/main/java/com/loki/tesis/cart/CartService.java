@@ -66,4 +66,13 @@ public class CartService {
 
         return cartMapper.toCartResponseDTO(cart);
     }
+
+    public CartResponseDTO updateQuantity(UUID userCode, UUID cartItemCode, Integer quantity) {
+        User user = userRepository.findByUuid(userCode)
+                .orElseThrow(() -> new EntityNotFoundException("User not found."));
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Cart not found."));
+
+        cart.updateCartItemQuantity(cartItemCode, quantity);
+    }
 }

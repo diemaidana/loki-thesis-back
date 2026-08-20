@@ -27,4 +27,12 @@ public class CartController {
     public ResponseEntity<CartResponseDTO> getCart(@PathVariable UUID userCode) {
         return ResponseEntity.ok(cartService.getCart(userCode));
     }
+
+    // DELETE USERCODE ONCE SECURITY IS IMPLEMENTED
+    @PatchMapping("/{userCode}/items/{cartItemCode}")
+    public ResponseEntity<CartResponseDTO> updateQuantity(@PathVariable UUID userCode,
+                                                          @PathVariable UUID cartItemCode,
+                                                          @RequestBody Integer quantity) {
+        return ResponseEntity.ok(cartService.updateQuantity(userCode, cartItemCode, quantity));
+    }
 }

@@ -91,4 +91,10 @@ public class Cart {
                 .findFirst()
                 .orElse(0);
     }
+
+    public void updateCartItemQuantity(UUID cartItemCode, Integer quantity) {
+        cartItems.stream()
+                .filter(c -> c.getCartItemCode().equals(cartItemCode))
+                .findFirst();
+    }
 }
