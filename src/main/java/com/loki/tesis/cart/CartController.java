@@ -30,7 +30,7 @@ public class CartController {
     }
 
     // DELETE USERCODE ONCE SECURITY IS IMPLEMENTED
-    @PatchMapping("/{userCode}/items/{cartItemCode}")
+    @PatchMapping("/{userCode}/items")
     public ResponseEntity<CartResponseDTO> updateQuantity(@PathVariable UUID userCode,
                                                           @RequestBody UpdateCartItemRequestDTO request) {
         return ResponseEntity.ok(cartService.updateQuantity(userCode, request));
