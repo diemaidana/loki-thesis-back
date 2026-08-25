@@ -93,8 +93,24 @@ public class Cart {
     }
 
     public void updateCartItemQuantity(UUID cartItemCode, Integer quantity) {
-        cartItems.stream()
+        for (CartItem cartItem1 : cartItems) {
+            System.out.println(cartItem1.getCartItemCode());
+        }
+
+        CartItem cartItem = findCartItem(cartItemCode);
+
+        cartItem.setQuantity(quantity);
+    }
+
+    public void deleteCartItem(UUID cartItemCode) {
+        CartItem item = findCartItem(cartItemCode);
+        cartItems.remove(item);
+    }
+
+    private CartItem findCartItem(UUID cartItemCode) {
+        return cartItems.stream()
                 .filter(c -> c.getCartItemCode().equals(cartItemCode))
-                .findFirst();
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Cart item not found."));
     }
 }
