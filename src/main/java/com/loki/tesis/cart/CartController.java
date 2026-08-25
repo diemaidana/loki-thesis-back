@@ -2,6 +2,7 @@ package com.loki.tesis.cart;
 
 import com.loki.tesis.cart.dto.AddCartItemRequestDTO;
 import com.loki.tesis.cart.dto.CartResponseDTO;
+import com.loki.tesis.cart.dto.UpdateCartItemRequestDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,14 +32,13 @@ public class CartController {
     // DELETE USERCODE ONCE SECURITY IS IMPLEMENTED
     @PatchMapping("/{userCode}/items/{cartItemCode}")
     public ResponseEntity<CartResponseDTO> updateQuantity(@PathVariable UUID userCode,
-                                                          @PathVariable UUID cartItemCode,
-                                                          @RequestBody Integer quantity) {
-        return ResponseEntity.ok(cartService.updateQuantity(userCode, cartItemCode, quantity));
+                                                          @RequestBody UpdateCartItemRequestDTO request) {
+        return ResponseEntity.ok(cartService.updateQuantity(userCode, request));
     }
 
     @DeleteMapping("/{userCode}/items/{cartItemCode}")
     public ResponseEntity<Void> deleteCartItem(@PathVariable UUID userCode,
-                                                          @PathVariable UUID cartItemCode) {
+                                               @PathVariable UUID cartItemCode) {
         cartService.deleteCartItem(userCode, cartItemCode);
         return ResponseEntity.noContent().build();
     }

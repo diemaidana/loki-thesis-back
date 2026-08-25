@@ -1,11 +1,9 @@
 package com.loki.tesis.cart;
 
 import com.loki.tesis.cart.dto.AddCartItemRequestDTO;
-import com.loki.tesis.cart.dto.CartItemResponseDTO;
 import com.loki.tesis.cart.dto.CartResponseDTO;
+import com.loki.tesis.cart.dto.UpdateCartItemRequestDTO;
 import com.loki.tesis.cart.entities.Cart;
-import com.loki.tesis.cart.entities.CartItem;
-import com.loki.tesis.cart.repositories.CartItemRepository;
 import com.loki.tesis.cart.repositories.CartRepository;
 import com.loki.tesis.products.Product;
 import com.loki.tesis.products.ProductRepository;
@@ -13,13 +11,10 @@ import com.loki.tesis.products.ProductStatus;
 import com.loki.tesis.user.entity.User;
 import com.loki.tesis.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -43,8 +38,7 @@ public class CartService {
                     return newCart;
                 });
 
-        Product product = productRepository.findByProductCodeAndStatus(request.productCode(), ProductStatus.PUBLISHED)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found."));
+        Product product = findProduct(request.productCode());
 
         checkStock(product.getStock(), request.quantity() + cart.getProductQuantity(product));
 
@@ -68,13 +62,18 @@ public class CartService {
     }
 
     @Transactional
-    public CartResponseDTO updateQuantity(UUID userCode, UUID cartItemCode, Integer quantity) {
+    public CartResponseDTO updateQuantity(UUID userCode, UpdateCartItemRequestDTO request) {
         User user = userRepository.findByUuid(userCode)
                 .orElseThrow(() -> new EntityNotFoundException("User not found."));
+
+        Product product = findProduct(request.productCode());
+
+        checkStock(product.getStock(), request.quantity());
+
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Cart not found."));
 
-        cart.updateCartItemQuantity(cartItemCode, quantity);
+        cart.updateCartItemQuantity(request.cartItemCode(), request.quantity());
 
         return cartMapper.toCartResponseDTO(cart);
     }
@@ -88,5 +87,10 @@ public class CartService {
                 .orElseThrow(() -> new EntityNotFoundException("Cart not found."));
 
         cart.deleteCartItem(cartItemCode);
+    }
+
+    private Product findProduct(UUID productCode) {
+        return productRepository.findByProductCodeAndStatus(productCode, ProductStatus.PUBLISHED)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found."));
     }
 }

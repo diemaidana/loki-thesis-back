@@ -93,10 +93,6 @@ public class Cart {
     }
 
     public void updateCartItemQuantity(UUID cartItemCode, Integer quantity) {
-        for (CartItem cartItem1 : cartItems) {
-            System.out.println(cartItem1.getCartItemCode());
-        }
-
         CartItem cartItem = findCartItem(cartItemCode);
 
         cartItem.setQuantity(quantity);
