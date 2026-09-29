@@ -1,4 +1,4 @@
-package com.loki.tesis.auth.dto;
+package com.loki.tesis.auth.dto.request;
 
 import com.loki.tesis.shared.address.dto.AddressDTO;
 import com.loki.tesis.user.enums.SocialNumberType;
@@ -26,7 +26,7 @@ public record RegisterRequestDTO(
         String email,
 
         @NotBlank(message = "La contraseña es obligatoria")
-        @Size(min = 8, max = 16, message = "La contraseña debe tener entre 8 y 16 caracteres")
+        @Size(min = 8, max = 64, message = "La contraseña debe tener entre 8 y 64 caracteres")
         @Pattern(
                 regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).+$",
                 message = "La contraseña debe contener al menos una mayuscula, un número y un caracter especial"

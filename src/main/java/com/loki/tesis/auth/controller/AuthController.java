@@ -1,9 +1,12 @@
 package com.loki.tesis.auth.controller;
 
-import com.loki.tesis.auth.dto.AccountResponseDTO;
-import com.loki.tesis.auth.dto.RegisterRequestDTO;
-import com.loki.tesis.auth.dto.ResendVerificationRequestDTO;
-import com.loki.tesis.auth.dto.VerifyEmailRequestDTO;
+import com.loki.tesis.auth.credential.entity.Credential;
+import com.loki.tesis.auth.dto.response.AccountResponseDTO;
+import com.loki.tesis.auth.dto.request.LoginRequestDTO;
+import com.loki.tesis.auth.dto.response.LoginResponseDTO;
+import com.loki.tesis.auth.dto.request.RegisterRequestDTO;
+import com.loki.tesis.auth.dto.request.ResendVerificationRequestDTO;
+import com.loki.tesis.auth.dto.request.VerifyEmailRequestDTO;
 import com.loki.tesis.auth.service.AuthService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -11,6 +14,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,12 +26,9 @@ public class AuthController {
 
     private final AuthService authService;
 
-
-    // TODO: Implementar con @AuthenticationPrincipal cuando este Spring Security
-    // TODO: BORRAR REQUESTPARAM.
     @GetMapping("/me")
-    public ResponseEntity<AccountResponseDTO> getCurrentUser(@RequestParam @NotBlank @Email String email) {
-        AccountResponseDTO accountResponseDTO = authService.getCurrentUser(email);
+    public ResponseEntity<AccountResponseDTO> getCurrentUser(@AuthenticationPrincipal Credential credential) {
+        AccountResponseDTO accountResponseDTO = authService.getCurrentUser(credential);
         return ResponseEntity.ok(accountResponseDTO);
     }
 
@@ -37,6 +38,12 @@ public class AuthController {
         AccountResponseDTO accountResponseDTO = authService.register(registerRequestDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(accountResponseDTO);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
+        LoginResponseDTO loginResponseDTO = authService.login(loginRequestDTO);
+        return ResponseEntity.ok(loginResponseDTO);
     }
 
     @PostMapping("/email/verify")

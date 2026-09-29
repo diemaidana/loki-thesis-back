@@ -10,6 +10,7 @@ public record ProductDetailResponseDto(
         String title,
         String description,
         BigDecimal price,
+        Integer stock,
         LocalDateTime createdAt,
         List<String> images
 ) {
