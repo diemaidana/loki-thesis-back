@@ -34,7 +34,6 @@ public class VerificationToken {
     @JoinColumn(name = "credential_id", nullable = false)
     private Credential credential;
 
-    @CreationTimestamp
     @Column(nullable = false, updatable = false, name = "created_at")
     private Instant createdAt;
 
@@ -43,4 +42,9 @@ public class VerificationToken {
 
     @Column(name = "used_at")
     private Instant usedAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = Instant.now();
+    }
 }

@@ -1,5 +1,6 @@
 package com.loki.tesis.user.mapper;
 
+import com.loki.tesis.shared.address.mapper.AddressMapper;
 import com.loki.tesis.user.dto.UserResponseDTO;
 import com.loki.tesis.user.dto.UserUpdateDTO;
 import com.loki.tesis.user.entity.User;
@@ -7,8 +8,9 @@ import org.mapstruct.*;
 
 @Mapper (
         componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.ERROR
-        )
+        unmappedTargetPolicy = ReportingPolicy.ERROR,
+        uses = AddressMapper.class
+    )
 public interface UserMapper {
 
     UserResponseDTO toUserResponseDTO(User user);

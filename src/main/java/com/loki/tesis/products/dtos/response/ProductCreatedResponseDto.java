@@ -9,6 +9,7 @@ public record ProductCreatedResponseDto(
         String title,
         String description,
         BigDecimal price,
+        Integer stock,
         LocalDateTime createdAt
 ) {
 }

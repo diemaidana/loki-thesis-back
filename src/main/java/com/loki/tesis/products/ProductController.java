@@ -1,5 +1,6 @@
 package com.loki.tesis.products;
 
+import com.loki.tesis.auth.credential.entity.Credential;
 import com.loki.tesis.products.dtos.request.ProductRequestDto;
 import com.loki.tesis.products.dtos.response.ProductCreatedResponseDto;
 import com.loki.tesis.products.dtos.response.ProductDetailResponseDto;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,16 +27,18 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    public ResponseEntity<ProductCreatedResponseDto> create(@Valid @RequestBody ProductRequestDto productRequestDto) {
-        ProductCreatedResponseDto productCreatedResponseDto = productService.create(productRequestDto);
+    public ResponseEntity<ProductCreatedResponseDto> create(@Valid @RequestBody ProductRequestDto productRequestDto,
+                                                            @AuthenticationPrincipal Credential credential) {
+        ProductCreatedResponseDto productCreatedResponseDto = productService.create(productRequestDto, credential);
 
         return ResponseEntity.ok(productCreatedResponseDto);
     }
 
     @PutMapping("/{productCode}")
     public ResponseEntity<ProductCreatedResponseDto> update(@PathVariable UUID productCode,
-                                                            @Valid @RequestBody ProductRequestDto request) {
-        return ResponseEntity.ok(productService.update(productCode, request));
+                                                            @Valid @RequestBody ProductRequestDto request,
+                                                            @AuthenticationPrincipal Credential credential) {
+        return ResponseEntity.ok(productService.update(productCode, request, credential));
     }
 
     @GetMapping
@@ -64,6 +68,8 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllUnpublished(title, categoryCodes, minPrice, maxPrice, page));
     }
 
+
+
     @GetMapping("/{productCode}")
     public ResponseEntity<ProductDetailResponseDto> getProductDetailByProductCode(@PathVariable UUID productCode) {
         return ResponseEntity.ok(productService.getProductDetailsByProductCode(productCode));
@@ -75,14 +81,16 @@ public class ProductController {
     }
 
     @DeleteMapping("/{productCode}")
-    public ResponseEntity<Void> delete(@PathVariable UUID productCode) {
-        productService.delete(productCode);
+    public ResponseEntity<Void> delete(@PathVariable UUID productCode,
+                                       @AuthenticationPrincipal Credential credential) {
+        productService.delete(productCode, credential);
 
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping(value = "/{productCode}/uploadImages", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ProductSummaryResponseDto> uploadImages(@PathVariable UUID productCode, @RequestPart List<@ValidImage MultipartFile> images) {
-        return ResponseEntity.ok(productService.uploadImages(productCode, images));
+    public ResponseEntity<ProductSummaryResponseDto> uploadImages(@PathVariable UUID productCode, @RequestPart List<@ValidImage MultipartFile> images,
+                                                                  @AuthenticationPrincipal Credential credential) {
+        return ResponseEntity.ok(productService.uploadImages(productCode, images, credential));
     }
 }
