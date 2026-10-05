@@ -30,6 +30,11 @@ public class EmailVerificationService {
     }
 
     @Transactional
+    public void sendLockNotificationEmail(Integer lockoutMinutes, Credential credential){
+        emailService.sendLockNotification(lockoutMinutes, credential.getUser().getFirstName(), credential.getEmail());
+    }
+
+    @Transactional
     public void verifyEmail(String token){
         Credential credential = tokenService.consume(token, TokenType.EMAIL_VERIFICATION);
         credential.setEmailVerified(true);

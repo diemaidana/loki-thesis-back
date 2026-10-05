@@ -47,4 +47,25 @@ public class EmailServiceImpl implements EmailService {
             throw new EmailSendException("Error al enviar email: "+ emailMessage.to(), e);
         }
     }
+
+    @Async
+    @Override
+    public void sendLockNotification(Integer lockoutMinutes, String firstName, String userEmail){
+        Context context = new Context();
+        context.setVariable("firstName", firstName);
+        context.setVariable("lockoutMinutes", lockoutMinutes);
+
+        String htmlContent = templateEngine.process("email/account-locked", context);
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setFrom(fromEmail, fromName);
+            helper.setTo(userEmail);
+            helper.setSubject("Alerta: Cuenta bloqueada por intentos fallidos de inicio de sesión");
+            helper.setText(htmlContent, true);
+            mailSender.send(mimeMessage);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            throw new EmailSendException("Error al enviar email de notificación de bloqueo de cuenta para: "+ firstName, e);
+        }
+    }
 }
