@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmá tu cuenta</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 40px 0;">
+    <tr>
+        <td align="center">
+            <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; padding: 40px;">
+
+                <!-- Encabezado -->
+                <tr>
+                    <td align="center" style="padding-bottom: 20px;">
+                        <h1 style="color: #333333; margin: 0;">Loki Tesis</h1>
+                    </td>
+                </tr>
+
+                <!-- Saludo -->
+                <tr>
+                    <td style="color: #333333; font-size: 16px; line-height: 1.6;">
+                        <p>Hola <strong th:text="${firstName}">Nombre</strong>,</p>
+                        <p>Gracias por registrarte en Loki. Para activar tu cuenta, hacé click en el siguiente botón:</p>
+                    </td>
+                </tr>
+
+                <!-- Botón de verificación -->
+                <tr>
+                    <td align="center" style="padding: 30px 0;">
+                        <a th:href="${verificationUrl}"
+                           href="#"
+                           style="background-color: #3498db; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">
+                            Confirmar mi cuenta
+                        </a>
+                    </td>
+                </tr>
+
+                <!-- Link alternativo (por si el botón no funciona) -->
+                <tr>
+                    <td style="color: #666666; font-size: 14px; line-height: 1.6;">
+                        <p>Si el botón no funciona, copiá y pegá este link en tu navegador:</p>
+                        <p style="word-break: break-all;">
+                            <a th:href="${verificationUrl}"
+                               th:text="${verificationUrl}"
+                               href="#"
+                               style="color: #3498db;">link de verificación</a>
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Advertencia de vencimiento -->
+                <tr>
+                    <td style="color: #999999; font-size: 13px; padding-top: 20px;">
+                        <p>Este link vence en <strong th:text="${expirationHours}">24</strong> horas. Si no te registraste, ignorá este mensaje.</p>
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td align="center" style="padding-top: 30px; border-top: 1px solid #eeeeee; color: #999999; font-size: 12px;">
+                        <p>© 2026 Loki Tesis — Tesis universitaria</p>
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>
