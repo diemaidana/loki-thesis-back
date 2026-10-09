@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-10-03T22:48:53-0300",
+    date = "2026-10-08T22:23:19-0300",
     comments = "version: 1.6.3, compiler: javac, environment: Java 25.0.4.1 (Amazon.com Inc.)"
 )
 @Component
@@ -60,15 +60,17 @@ public class ProductMapperImpl implements ProductMapper {
         String title = null;
         String description = null;
         BigDecimal price = null;
+        Integer stock = null;
         LocalDateTime createdAt = null;
 
         productCode = product.getProductCode();
         title = product.getTitle();
         description = product.getDescription();
         price = product.getPrice();
+        stock = product.getStock();
         createdAt = product.getCreatedAt();
 
-        ProductCreatedResponseDto productCreatedResponseDto = new ProductCreatedResponseDto( productCode, title, description, price, createdAt );
+        ProductCreatedResponseDto productCreatedResponseDto = new ProductCreatedResponseDto( productCode, title, description, price, stock, createdAt );
 
         return productCreatedResponseDto;
     }
@@ -83,18 +85,20 @@ public class ProductMapperImpl implements ProductMapper {
         String title = null;
         String description = null;
         BigDecimal price = null;
+        Integer stock = null;
         LocalDateTime createdAt = null;
         if ( product != null ) {
             productCode = product.getProductCode();
             title = product.getTitle();
             description = product.getDescription();
             price = product.getPrice();
+            stock = product.getStock();
             createdAt = product.getCreatedAt();
         }
         String coverImageUrl1 = null;
         coverImageUrl1 = coverImageUrl;
 
-        ProductSummaryResponseDto productSummaryResponseDto = new ProductSummaryResponseDto( productCode, title, description, price, createdAt, coverImageUrl1 );
+        ProductSummaryResponseDto productSummaryResponseDto = new ProductSummaryResponseDto( productCode, title, description, price, stock, createdAt, coverImageUrl1 );
 
         return productSummaryResponseDto;
     }
@@ -109,12 +113,14 @@ public class ProductMapperImpl implements ProductMapper {
         String title = null;
         String description = null;
         BigDecimal price = null;
+        Integer stock = null;
         LocalDateTime createdAt = null;
         if ( product != null ) {
             productCode = product.getProductCode();
             title = product.getTitle();
             description = product.getDescription();
             price = product.getPrice();
+            stock = product.getStock();
             createdAt = product.getCreatedAt();
         }
         List<String> images = null;
@@ -123,7 +129,7 @@ public class ProductMapperImpl implements ProductMapper {
             images = new ArrayList<String>( list );
         }
 
-        ProductDetailResponseDto productDetailResponseDto = new ProductDetailResponseDto( productCode, title, description, price, createdAt, images );
+        ProductDetailResponseDto productDetailResponseDto = new ProductDetailResponseDto( productCode, title, description, price, stock, createdAt, images );
 
         return productDetailResponseDto;
     }

@@ -26,10 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -47,9 +44,6 @@ public class ProductService {
 
     @Transactional
     public ProductCreatedResponseDto create(ProductRequestDto productRequestDto, Credential credential) {
-        /* User user = userRepository.findByUuid(productRequestDto.user())
-                .orElseThrow(() -> new EntityNotFoundException("User not found."));
-         */
 
         User seller = credential.getUser();
 
@@ -61,7 +55,7 @@ public class ProductService {
 
         Product product = productMapper.toEntity(productRequestDto);
         product.setCategories(categories);
-        product.setSeller(user);
+        product.setSeller(seller);
 
         return productMapper.toProductCreatedDto(productRepository.save(product));
     }
