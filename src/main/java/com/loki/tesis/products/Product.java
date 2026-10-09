@@ -44,15 +44,10 @@ public class Product {
     private LocalDateTime updatedAt;
 
     @Column(name = "status", nullable = false)
-    @Enumerated(EnumType.STRING)
     private ProductStatus status;
 
     @Column(name = "stock", nullable = false)
     private Integer stock;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id", nullable = false)
-    private User seller;
 
     @ManyToMany
     @JoinTable(
