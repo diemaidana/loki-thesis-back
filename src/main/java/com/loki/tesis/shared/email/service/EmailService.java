@@ -4,6 +4,4 @@ import com.loki.tesis.shared.email.dto.EmailMessage;
 
 public interface EmailService {
     void send(EmailMessage emailMessage);
-
-    void sendLockNotification(Integer lockoutMinutes, String firstName, String email);
 }

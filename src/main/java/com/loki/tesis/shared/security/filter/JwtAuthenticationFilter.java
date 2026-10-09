@@ -21,6 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Component
@@ -49,6 +50,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if(authentication == null) {
                 Credential credential = credentialUserDetailsService.loadUserByUuid(uuid);
+                Long tokenTv = jwtService.extractTokenVersion(token);
+                if (!Objects.equals(credential.getTokenVersion(), tokenTv)) {
+                    throw new JwtException("La version del Token invalida.");
+                }
                 List<GrantedAuthority> authorities = jwtService.getAuthorities(token);
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         credential,

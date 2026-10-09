@@ -46,9 +46,20 @@
                 <tr>
                     <td style="color: #333333; font-size: 16px; line-height: 1.6; padding-top: 10px;">
                         <p>
-                            <strong>Si no fuiste vos:</strong> te recomendamos cambiar tu contrasena en cuanto puedas.
-                            Proximamente vas a recibir un link directo desde este email para resetearla.
+                            <strong>Si no fuiste vos:</strong> alguien podria estar intentando acceder a tu cuenta.
+                            Te recomendamos cambiar tu contrasena cuanto antes desde la opcion "Olvide mi contrasena" en el login.
                         </p>
+                    </td>
+                </tr>
+
+                <!-- Boton de recuperacion -->
+                <tr>
+                    <td align="center" style="padding: 16px 0 8px 0;">
+                        <a th:href="${forgotPasswordUrl}"
+                           href="#"
+                           style="display: inline-block; background-color: #2a6ad6; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-size: 16px; font-weight: bold;">
+                            Restablecer mi contrasena
+                        </a>
                     </td>
                 </tr>
 

@@ -59,12 +59,13 @@ public class JwtService {
         log.info("JWT secret validado: {} bytes ({}bit)", keyBytes.length, keyBytes.length * 8);
     }
 
-    public IssuedToken generateToken(String uuid, String email, RoleType roleType) {
+    public IssuedToken generateToken(String uuid, String email, RoleType roleType, Long tokenVersion) {
         Instant now = Instant.now();
         Instant expiresAt = now.plus(getJwtExpiration());
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", List.of(roleType.name()));
+        claims.put("token_version", tokenVersion);
         String token = buildToken(claims, uuid, email, now, expiresAt);
         return new IssuedToken(token, expiresAt);
     }
@@ -128,5 +129,9 @@ public class JwtService {
     private boolean isTokenExpired(String token) {
         Date expiration = extractClaim(token, Claims::getExpiration);
         return expiration.before(new Date());
+    }
+
+    public Long extractTokenVersion(String token) {
+        return extractClaim(token, claims -> claims.get("token_version", Long.class));
     }
 }

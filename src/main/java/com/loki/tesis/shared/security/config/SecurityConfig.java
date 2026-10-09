@@ -55,6 +55,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/email/verify").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/email/verify/request").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/password/forgot").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/password/reset").permitAll()
 
                 // Endpoint publicos de lectura.
                 .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
