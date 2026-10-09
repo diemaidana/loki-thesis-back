@@ -3,6 +3,7 @@ package com.loki.tesis.user.mapper;
 import com.loki.tesis.shared.address.dto.AddressDTO;
 import com.loki.tesis.shared.address.entity.Address;
 import com.loki.tesis.shared.address.enums.Provinces;
+import com.loki.tesis.shared.address.mapper.AddressMapper;
 import com.loki.tesis.user.dto.UserResponseDTO;
 import com.loki.tesis.user.dto.UserUpdateDTO;
 import com.loki.tesis.user.entity.User;
@@ -11,15 +12,19 @@ import com.loki.tesis.user.enums.SocialNumberType;
 import java.time.Instant;
 import java.util.UUID;
 import javax.annotation.processing.Generated;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-10-03T22:48:53-0300",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 25.0.4.1 (Amazon.com Inc.)"
+    date = "2026-10-06T11:02:51-0300",
+    comments = "version: 1.6.3, compiler: javac, environment: Java 25.0.2 (Oracle Corporation)"
 )
 @Component
 public class UserMapperImpl implements UserMapper {
+
+    @Autowired
+    private AddressMapper addressMapper;
 
     @Override
     public UserResponseDTO toUserResponseDTO(User user) {
@@ -66,10 +71,7 @@ public class UserMapperImpl implements UserMapper {
             user.setPhoneNumber( userUpdateDTO.phoneNumber() );
         }
         if ( userUpdateDTO.address() != null ) {
-            if ( user.getAddress() == null ) {
-                user.setAddress( new Address() );
-            }
-            addressDTOToAddress( userUpdateDTO.address(), user.getAddress() );
+            user.setAddress( addressMapper.toAddress( userUpdateDTO.address() ) );
         }
     }
 
@@ -103,11 +105,5 @@ public class UserMapperImpl implements UserMapper {
         AddressDTO addressDTO = new AddressDTO( street, streetNumber, floor, apartment, crossStreetOne, crossStreetTwo, city, province, postalCode, additionalInformation );
 
         return addressDTO;
-    }
-
-    protected void addressDTOToAddress(AddressDTO addressDTO, Address mappingTarget) {
-        if ( addressDTO == null ) {
-            return;
-        }
     }
 }

@@ -1,6 +1,4 @@
 package com.loki.tesis.shared.security.exception;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,10 +29,6 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
             case InsufficientAuthenticationException insufficientAuthenticationException -> "Autenticación insuficiente";
             case AuthenticationServiceException authenticationServiceException -> "Error en el servicio de autenticación";
             default -> "Error de autenticación: " + authException.getMessage(); };
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.put("error", errorMessage); responseData.put("status", HttpServletResponse.SC_UNAUTHORIZED);
-        responseData.put("path", request.getRequestURI()); response.getWriter().write(mapper.writeValueAsString(responseData));
-        response.getWriter().flush();
+
     }
 }

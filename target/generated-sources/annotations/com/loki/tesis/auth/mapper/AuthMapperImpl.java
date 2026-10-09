@@ -1,26 +1,32 @@
 package com.loki.tesis.auth.mapper;
 
 import com.loki.tesis.auth.credential.entity.Credential;
-import com.loki.tesis.auth.dto.AccountResponseDTO;
-import com.loki.tesis.auth.dto.RegisterRequestDTO;
+import com.loki.tesis.auth.dto.request.RegisterRequestDTO;
+import com.loki.tesis.auth.dto.response.AccountResponseDTO;
+import com.loki.tesis.auth.dto.response.LoginResponseDTO;
 import com.loki.tesis.shared.address.dto.AddressDTO;
 import com.loki.tesis.shared.address.entity.Address;
 import com.loki.tesis.shared.address.enums.Provinces;
+import com.loki.tesis.shared.address.mapper.AddressMapper;
 import com.loki.tesis.user.entity.User;
 import com.loki.tesis.user.enums.AccountStatus;
 import com.loki.tesis.user.enums.SocialNumberType;
 import java.time.Instant;
 import java.util.UUID;
 import javax.annotation.processing.Generated;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-10-03T22:48:53-0300",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 25.0.4.1 (Amazon.com Inc.)"
+    date = "2026-10-06T11:02:51-0300",
+    comments = "version: 1.6.3, compiler: javac, environment: Java 25.0.2 (Oracle Corporation)"
 )
 @Component
 public class AuthMapperImpl implements AuthMapper {
+
+    @Autowired
+    private AddressMapper addressMapper;
 
     @Override
     public User toUserEntity(RegisterRequestDTO registerRequestDTO) {
@@ -35,7 +41,7 @@ public class AuthMapperImpl implements AuthMapper {
         user.setDocumentType( registerRequestDTO.documentType() );
         user.setDocumentNumber( registerRequestDTO.documentNumber() );
         user.setPhoneNumber( registerRequestDTO.phoneNumber() );
-        user.setAddress( addressDTOToAddress( registerRequestDTO.address() ) );
+        user.setAddress( addressMapper.toAddress( registerRequestDTO.address() ) );
 
         return user;
     }
@@ -90,14 +96,22 @@ public class AuthMapperImpl implements AuthMapper {
         return accountResponseDTO;
     }
 
-    protected Address addressDTOToAddress(AddressDTO addressDTO) {
-        if ( addressDTO == null ) {
+    @Override
+    public LoginResponseDTO toLoginResponseDTO(AccountResponseDTO accountResponseDTO, String token, Instant expiresAt) {
+        if ( accountResponseDTO == null && token == null && expiresAt == null ) {
             return null;
         }
 
-        Address address = new Address();
+        AccountResponseDTO account = null;
+        account = accountResponseDTO;
+        String token1 = null;
+        token1 = token;
+        Instant expiresAt1 = null;
+        expiresAt1 = expiresAt;
 
-        return address;
+        LoginResponseDTO loginResponseDTO = new LoginResponseDTO( token1, expiresAt1, account );
+
+        return loginResponseDTO;
     }
 
     protected AddressDTO addressToAddressDTO(Address address) {

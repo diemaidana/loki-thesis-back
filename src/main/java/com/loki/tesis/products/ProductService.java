@@ -61,7 +61,7 @@ public class ProductService {
 
         Product product = productMapper.toEntity(productRequestDto);
         product.setCategories(categories);
-        product.setSeller(user);
+        product.setSeller(seller);
 
         return productMapper.toProductCreatedDto(productRepository.save(product));
     }

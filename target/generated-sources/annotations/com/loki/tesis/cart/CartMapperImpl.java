@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-10-03T22:48:53-0300",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 25.0.4.1 (Amazon.com Inc.)"
+    date = "2026-10-06T11:02:51-0300",
+    comments = "version: 1.6.3, compiler: javac, environment: Java 25.0.2 (Oracle Corporation)"
 )
 @Component
 public class CartMapperImpl implements CartMapper {
@@ -90,17 +90,19 @@ public class CartMapperImpl implements CartMapper {
         String title = null;
         String description = null;
         BigDecimal price = null;
+        Integer stock = null;
         LocalDateTime createdAt = null;
 
         productCode = product.getProductCode();
         title = product.getTitle();
         description = product.getDescription();
         price = product.getPrice();
+        stock = product.getStock();
         createdAt = product.getCreatedAt();
 
         String coverImageUrl = null;
 
-        ProductSummaryResponseDto productSummaryResponseDto = new ProductSummaryResponseDto( productCode, title, description, price, createdAt, coverImageUrl );
+        ProductSummaryResponseDto productSummaryResponseDto = new ProductSummaryResponseDto( productCode, title, description, price, stock, createdAt, coverImageUrl );
 
         return productSummaryResponseDto;
     }

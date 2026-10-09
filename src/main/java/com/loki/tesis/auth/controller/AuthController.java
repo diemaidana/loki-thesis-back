@@ -1,12 +1,9 @@
 package com.loki.tesis.auth.controller;
 
 import com.loki.tesis.auth.credential.entity.Credential;
+import com.loki.tesis.auth.dto.request.*;
 import com.loki.tesis.auth.dto.response.AccountResponseDTO;
-import com.loki.tesis.auth.dto.request.LoginRequestDTO;
 import com.loki.tesis.auth.dto.response.LoginResponseDTO;
-import com.loki.tesis.auth.dto.request.RegisterRequestDTO;
-import com.loki.tesis.auth.dto.request.ResendVerificationRequestDTO;
-import com.loki.tesis.auth.dto.request.VerifyEmailRequestDTO;
 import com.loki.tesis.auth.service.AuthService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -55,6 +52,27 @@ public class AuthController {
     @PostMapping("/email/verify/request")
     public ResponseEntity<Void> resendEmailVerification(@Valid @RequestBody ResendVerificationRequestDTO resendVerificationRequestDTO) {
         authService.resendEmailVerification(resendVerificationRequestDTO.email());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/password/forgot")
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequestDTO forgotPasswordRequestDTO) {
+        authService.forgotPassword(forgotPasswordRequestDTO.email());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/password/reset")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequestDTO resetPasswordRequestDTO) {
+        authService.resetPassword(resetPasswordRequestDTO.token(), resetPasswordRequestDTO.newPassword());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/password/change")
+    public ResponseEntity<Void> changePassword(
+            @AuthenticationPrincipal Credential credential,
+            @Valid @RequestBody ChangePasswordRequestDTO request
+    ){
+        authService.changePassword(credential, request.currentPassword(), request.newPassword());
         return ResponseEntity.noContent().build();
     }
 }
