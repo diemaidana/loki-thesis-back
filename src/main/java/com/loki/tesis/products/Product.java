@@ -56,6 +56,9 @@ public class Product {
             inverseJoinColumns = @JoinColumn(name = "category_id"))
     private Set<CategoryEntity> categories;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id", nullable = false, updatable = false)
+    private User seller;
 
     @PrePersist
     public void onCreate() {
