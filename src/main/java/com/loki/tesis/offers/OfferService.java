@@ -2,15 +2,11 @@ package com.loki.tesis.offers;
 
 import com.loki.tesis.offers.dto.CreateOfferRequestDto;
 import com.loki.tesis.offers.dto.CreateOfferResponseDTO;
-import com.loki.tesis.products.Product;
+import com.loki.tesis.products.entities.Product;
 import com.loki.tesis.products.ProductRepository;
 import com.loki.tesis.user.entity.User;
 import com.loki.tesis.user.repository.UserRepository;
-import jakarta.persistence.Entity;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

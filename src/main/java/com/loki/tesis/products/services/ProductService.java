@@ -1,4 +1,4 @@
-package com.loki.tesis.products;
+package com.loki.tesis.products.services;
 
 import com.loki.tesis.auth.credential.entity.Credential;
 import com.loki.tesis.auth.credential.service.CredentialService;
@@ -6,16 +6,18 @@ import com.loki.tesis.auth.exception.EmailNotVerifiedException;
 import com.loki.tesis.auth.exception.ForbiddenException;
 import com.loki.tesis.categories.CategoryEntity;
 import com.loki.tesis.categories.CategoryRepository;
-import com.loki.tesis.productImages.services.ProductImageService;
+import com.loki.tesis.products.ProductMapper;
+import com.loki.tesis.products.ProductRepository;
+import com.loki.tesis.products.ProductSpecification;
+import com.loki.tesis.products.ProductStatus;
 import com.loki.tesis.products.dtos.request.ProductRequestDto;
 import com.loki.tesis.products.dtos.response.ProductCreatedResponseDto;
 import com.loki.tesis.products.dtos.response.ProductDetailResponseDto;
 import com.loki.tesis.products.dtos.response.ProductSummaryResponseDto;
-import com.loki.tesis.user.entity.User;
-import com.loki.tesis.user.service.UserService;
-import com.loki.tesis.shared.validation.ImageValidator;
+import com.loki.tesis.products.entities.Product;
 import com.loki.tesis.user.entity.User;
 import com.loki.tesis.user.repository.UserRepository;
+import com.loki.tesis.user.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -97,12 +99,12 @@ public class ProductService {
         Specification<Product> specification = getSpecificationFilter(title, categoryCodes, minPrice, maxPrice);
 
         return productRepository.findAllByStatus(ProductStatus.PUBLISHED, specification, page)
-                .map(product -> productMapper.toProductSummaryDto(product, productImageService.getCoverImageUrl(product.getId())));
+                .map(product -> productMapper.toProductSummaryDto(product, product.getCoverImage()));
     }
 
     public ProductDetailResponseDto getProductDetailsByProductCode(UUID productCode) {
         Product product = getProductEntity(productCode);
-        List<String> imagesUrl = productImageService.getImages(product.getId());
+        List<String> imagesUrl = product.getImagesPublicId();
         return productMapper.toProductDetailDto(product, imagesUrl);
     }
 
@@ -112,7 +114,7 @@ public class ProductService {
 
     public ProductSummaryResponseDto getProductPublishByCode(UUID productCode) {
         Product product = getProductEntity(productCode);
-        String imageUrl = productImageService.getCoverImageUrl(product.getId());
+        String imageUrl = product.getCoverImage();
         return productMapper.toProductSummaryDto(product, imageUrl);
     }
 
@@ -137,11 +139,6 @@ public class ProductService {
     @Transactional
     public ProductSummaryResponseDto uploadImages(UUID productCode, List<MultipartFile> images, Credential credential) {
 
-        for (MultipartFile image : images) {
-            if(ImageValidator.isSizeExceeded(image))
-                throw new IllegalArgumentException("Images must be under 5MB.");
-        }
-
         Product product = getProductEntity(productCode);
         ensureCallerIsSeller(credential, product.getSeller()); // Verifico que el email coincida.
         validateSellerEmailVerified(credential.getUser());
@@ -149,22 +146,17 @@ public class ProductService {
         if(images.isEmpty() || images.size() > 5)
             throw new IllegalArgumentException("At least one image must be provided.");
 
-        List<String> filenames = images.stream()
-                .map(productImageService::storeImage)
-                .toList();
-
-        for(int i = 0; i < filenames.size(); i++)
-            productImageService.create(filenames.get(i), product, i);
+        productImageService.addImages(product, images);
 
         product.publish();
 
-        return productMapper.toProductSummaryDto(product, filenames.getFirst());
+        return productMapper.toProductSummaryDto(product, product.getCoverImage());
     }
 
     public List<ProductSummaryResponseDto> getProductsBySellerUuid(UUID sellerUuid) {
         return productRepository.findBySeller_Uuid(sellerUuid)
                 .stream()
-                .map(p -> productMapper.toProductSummaryDto(p, productImageService.getCoverImageUrl(p.getId())))
+                .map(p -> productMapper.toProductSummaryDto(p, p.getCoverImage()))
                 .toList();
     }
 

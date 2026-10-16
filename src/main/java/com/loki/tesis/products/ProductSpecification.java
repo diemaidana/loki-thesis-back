@@ -1,6 +1,7 @@
 package com.loki.tesis.products;
 
 import com.loki.tesis.categories.CategoryEntity;
+import com.loki.tesis.products.entities.Product;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
