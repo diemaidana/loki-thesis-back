@@ -1,5 +1,6 @@
 package com.loki.tesis.shared.security.config;
 
+import com.loki.tesis.shared.security.exception.RestAccessDeniedHandler;
 import com.loki.tesis.shared.security.exception.RestAuthenticationEntryPoint;
 import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfig {
     private final Filter jwtAuthenticationFilter;
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+    private final RestAccessDeniedHandler restAccessDeniedHandler;
+
     @Value("${app.cors.allowed-origins}")
     private List<String> allowedOrigins;
 
@@ -75,7 +78,10 @@ public class SecurityConfig {
                     .sessionCreationPolicy(STATELESS)
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .exceptionHandling(exception -> exception.authenticationEntryPoint(restAuthenticationEntryPoint));
+            .exceptionHandling(exception ->
+                    exception.authenticationEntryPoint(restAuthenticationEntryPoint)
+                             .accessDeniedHandler(restAccessDeniedHandler)
+            );
         return http.build();
     }
 

@@ -17,6 +17,8 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -200,6 +202,18 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleGeneric(Exception ex) {
         log.error("Error inesperado en la aplicacion: {}", ex.getMessage(), ex);
         return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrio un error inesperado.");
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ProblemDetail handleAuthentication(AuthenticationException ex) {
+        log.debug("Autenticación requerida: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Autenticación requerida.");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
+        log.debug("Acceso denegado: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "No tenés permisos para acceder a este recurso.");
     }
 
 
