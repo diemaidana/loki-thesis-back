@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
@@ -24,7 +25,29 @@ public class VerificationTokenService {
     private final VerificationTokenRepository tokenRepository;
     private final SecureRandom secureRandom = new SecureRandom();
 
+/*
     public String generate(Credential credential, TokenType tokenType){
+
+        Invalido los tokens previos
+        tokenRepository.invalidateActiveTokens(credential, tokenType, Instant.now());
+
+         Generamos un token nuevo para cualquier TokenType.
+        byte[] token = new byte[32];
+        secureRandom.nextBytes(token);
+
+        String tokenString = Base64.getUrlEncoder().withoutPadding().encodeToString(token);
+        VerificationToken verificationToken = new VerificationToken();
+        verificationToken.setToken(tokenString);
+        verificationToken.setTokenType(tokenType);
+        verificationToken.setCredential(credential);
+        verificationToken.setExpiresAt(Instant.now().plus(24, ChronoUnit.HOURS));
+
+        tokenRepository.save(verificationToken);
+        return tokenString;
+    }
+*/
+
+    public String generate(Credential credential, TokenType tokenType, Long expiration){
 
         /* Invalido los tokens previos */
         tokenRepository.invalidateActiveTokens(credential, tokenType, Instant.now());
@@ -38,7 +61,7 @@ public class VerificationTokenService {
         verificationToken.setToken(tokenString);
         verificationToken.setTokenType(tokenType);
         verificationToken.setCredential(credential);
-        verificationToken.setExpiresAt(Instant.now().plus(24, ChronoUnit.HOURS));
+        verificationToken.setExpiresAt(Instant.now().plus(expiration, ChronoUnit.HOURS));
 
         tokenRepository.save(verificationToken);
         return tokenString;

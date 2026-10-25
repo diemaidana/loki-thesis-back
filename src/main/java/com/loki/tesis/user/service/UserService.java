@@ -65,5 +65,4 @@ public class UserService {
         return userRepository.findByUuid(uuid)
                 .orElseThrow(() -> new UserNotFoundException("El usuario con UUID " + uuid + " no fue encontrado"));
     }
-
 }

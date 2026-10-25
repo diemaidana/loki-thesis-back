@@ -5,12 +5,12 @@ import com.loki.tesis.auth.credential.enums.RoleType;
 import com.loki.tesis.auth.credential.service.CredentialService;
 import com.loki.tesis.auth.dto.request.LoginRequestDTO;
 import com.loki.tesis.auth.dto.request.RegisterRequestDTO;
+import com.loki.tesis.auth.dto.request.ResetPasswordRequestDTO;
 import com.loki.tesis.auth.dto.response.AccountResponseDTO;
 import com.loki.tesis.auth.dto.response.LoginResponseDTO;
 import com.loki.tesis.auth.exception.AccountLockedException;
 import com.loki.tesis.auth.exception.InvalidCredentialsException;
 import com.loki.tesis.auth.mapper.AuthMapper;
-import com.loki.tesis.auth.verification.service.EmailVerificationService;
 import com.loki.tesis.shared.security.dto.IssuedToken;
 import com.loki.tesis.shared.security.service.JwtService;
 import com.loki.tesis.user.entity.User;
@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,9 +37,10 @@ public class AuthService {
     private final UserService userService;
     private final CredentialService credentialService;
     private final AuthenticationManager authenticationManager;
+    private final AuthEmailService authEmailService;
     private final AuthMapper authMapper;
-    private final EmailVerificationService emailVerificationService;
     private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${app.auth.max-failed-attempts}")
     private int maxFailedAttempts;
@@ -64,7 +66,7 @@ public class AuthService {
         credential.setUser(user);
         Credential saved = credentialService.save(credential);
 
-        // emailVerificationService.sendVerificationEmail(saved);
+        authEmailService.sendVerificationEmail(saved);
 
         return authMapper.toAccountResponseDTO(user, saved);
     }
@@ -104,8 +106,9 @@ public class AuthService {
         String uuid = credential.getUser().getUuid().toString();
         String email = credential.getEmail();
         RoleType role = credential.getRoleType();
+        Long tokenVersion = credential.getTokenVersion();
 
-        IssuedToken issuedToken = jwtService.generateToken(uuid, email, role);
+        IssuedToken issuedToken = jwtService.generateToken(uuid, email, role,tokenVersion);
         String token = issuedToken.token();
         Instant expiresAt = issuedToken.expiresAt();
 
@@ -148,7 +151,7 @@ public class AuthService {
             return;
         }
         credential.setLastLockNotificationAt(Instant.now());
-        // emailVerificationService.sendLockNotificationEmail(lockoutDurationMinutes, credential);
+        authEmailService.sendLockNotificationEmail(credential, lockoutDurationMinutes);
     }
 
     private String accountLockedMessage() {
@@ -156,15 +159,37 @@ public class AuthService {
                 + lockoutDurationMinutes + " minutos.";
     }
 
-    @Transactional
     public void verifyEmail(String token) {
-        emailVerificationService.verifyEmail(token);
+        authEmailService.verifyEmail(token);
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        authEmailService.resetPassword(token, newPassword);
+    }
+
+    @Transactional
+    public void forgotPassword(String email) {
+        credentialService.findByEmailOptional(email)
+                .ifPresent(authEmailService::sendPasswordResetEmail);
     }
 
     @Transactional
     public void resendEmailVerification(String email) {
         credentialService.findByEmailOptional(email)
                          .filter(c -> !c.isEmailVerified())
-                         .ifPresent(emailVerificationService::sendVerificationEmail);
+                         .ifPresent(authEmailService::sendVerificationEmail);
+    }
+
+    @Transactional
+    public void changePassword(Credential credential, String currentPassword, String newPassword) {
+        Credential managedCredential = credentialService.findByUuid(credential.getUser().getUuid());
+
+        if (!passwordEncoder.matches(currentPassword, managedCredential.getPassword())) {
+            throw new InvalidCredentialsException("La contraseña actual es incorrecta.");
+        }
+        managedCredential.setPassword(passwordEncoder.encode(newPassword));
+        managedCredential.setTokenVersion(managedCredential.getTokenVersion() + 1);
+
+        authEmailService.sendPasswordChangeNotificationEmail(managedCredential);
     }
 }

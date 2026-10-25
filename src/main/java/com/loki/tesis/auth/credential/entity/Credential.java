@@ -53,6 +53,9 @@ public class Credential implements UserDetails {
     @Column(name = "credential_roles")
     private RoleType roleType;
 
+    @Column(nullable = false, name = "token_version")
+    private Long tokenVersion;
+
     @Version
     @Column(nullable = false)
     private Long version;
@@ -62,6 +65,7 @@ public class Credential implements UserDetails {
         this.roleType = RoleType.ROLE_USER;
         this.loginAttempts = 0;
         this.version = 0L;
+        this.tokenVersion = 0L;
     }
 
     @Override

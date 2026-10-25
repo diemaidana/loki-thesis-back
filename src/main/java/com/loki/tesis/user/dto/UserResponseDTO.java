@@ -15,5 +15,6 @@ public record UserResponseDTO(
         String documentNumber,
         AddressDTO address,
         AccountStatus status,
-        Instant createdAt
+        Instant createdAt,
+        String phoneNumber
 ) {}
