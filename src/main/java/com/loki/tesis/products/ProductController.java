@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -46,7 +47,7 @@ public class ProductController {
                                                                   @RequestParam(required = false) List<UUID> categoryCodes,
                                                                   @RequestParam(required = false) BigDecimal minPrice,
                                                                   @RequestParam(required = false) BigDecimal maxPrice,
-                                                                  Pageable page) {
+                                                                  @PageableDefault(size = 20) Pageable page) {
         return ResponseEntity.ok(productService.getAllCreated(title, categoryCodes, minPrice, maxPrice, page));
     }
 
@@ -55,7 +56,7 @@ public class ProductController {
                                                                   @RequestParam(required = false) List<UUID> categoryCodes,
                                                                   @RequestParam(required = false) BigDecimal minPrice,
                                                                   @RequestParam(required = false) BigDecimal maxPrice,
-                                                                  Pageable page) {
+                                                                  @PageableDefault(size = 20) Pageable page) {
         return ResponseEntity.ok(productService.getAllPublished(title, categoryCodes, minPrice, maxPrice, page));
     }
 
@@ -64,7 +65,7 @@ public class ProductController {
                                                                            @RequestParam(required = false) List<UUID> categoryCodes,
                                                                            @RequestParam(required = false) BigDecimal minPrice,
                                                                            @RequestParam(required = false) BigDecimal maxPrice,
-                                                                           Pageable page) {
+                                                                           @PageableDefault(size = 20) Pageable page) {
         return ResponseEntity.ok(productService.getAllUnpublished(title, categoryCodes, minPrice, maxPrice, page));
     }
 

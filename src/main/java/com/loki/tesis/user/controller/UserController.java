@@ -27,15 +27,16 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserByUuid(credential.getUser().getUuid()));
     }
 
-    @PatchMapping("/{uuid}")
-    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable UUID uuid, @RequestBody @Valid UserUpdateDTO userUpdateDTO) {
-        UserResponseDTO updatedUser = userService.updateUser(uuid, userUpdateDTO);
-        return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
+    @PatchMapping("/me")
+    public ResponseEntity<UserResponseDTO> updateUser(@AuthenticationPrincipal Credential credential,
+                                                      @Valid @RequestBody UserUpdateDTO userUpdateDTO) {
+        UserResponseDTO updatedUser = userService.updateUser(credential.getUser().getUuid(), userUpdateDTO);
+        return ResponseEntity.ok(updatedUser);
     }
 
-    @DeleteMapping("/{uuid}")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID uuid) {
-        userService.deleteUser(uuid);
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal Credential credential) {
+        userService.deleteUser(credential.getUser().getUuid());
         return ResponseEntity.noContent().build();
     }
 }

@@ -71,6 +71,16 @@ public class AuthEmailService {
         );
         emailService.send(buildEmailMessage(credential, "Tu contraseña fue actualizada.", "email/password-change", map));
     }
+    public void sendRegistrationAttemptEmail(Credential credential){
+        String url = frontendUrl + "/login" ;
+        Map<String, Object> map = Map.of(
+                "firstName", credential.getUser().getFirstName(),
+                "loginUrl", url,
+                "forgotPasswordUrl", frontendUrl +  "/forgot-password"
+        );
+
+        emailService.send(buildEmailMessage(credential, "Alguien intentó registrarse en Loki con tu email", "email/registration-attempt", map));
+    }
 
     // Metodo privado para la generación de emails.
     private EmailMessage buildEmailMessage(Credential credential, String subject, String templateName, Map<String, Object> variables) {

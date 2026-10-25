@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Intento de registro con tu email</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 40px 0;">
+    <tr>
+        <td align="center">
+            <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; padding: 40px;">
+
+                <!-- Encabezado -->
+                <tr>
+                    <td align="center" style="padding-bottom: 20px;">
+                        <h1 style="color: #333333; margin: 0;">Loki Tesis</h1>
+                    </td>
+                </tr>
+
+                <!-- Banda informativa -->
+                <tr>
+                    <td align="center" style="padding-bottom: 20px;">
+                        <div style="background-color: #e8f1ff; border-left: 4px solid #2a6ad6; padding: 12px 16px; color: #1a3f80; font-size: 14px; text-align: left;">
+                            <strong>Aviso:</strong> alguien intento registrarse en Loki con tu email.
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Saludo y contexto -->
+                <tr>
+                    <td style="color: #333333; font-size: 16px; line-height: 1.6;">
+                        <p>Hola <strong th:text="${firstName}">Nombre</strong>,</p>
+                        <p>
+                            Recibimos una solicitud para crear una nueva cuenta usando este email,
+                            pero ya tenes una cuenta activa en Loki asociada a esta direccion.
+                            No creamos ninguna cuenta nueva.
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Caja "Si fuiste vos" -->
+                <tr>
+                    <td style="padding-top: 10px;">
+                        <div style="background-color: #e8f1ff; border-left: 4px solid #2a6ad6; padding: 16px; color: #1a3f80; font-size: 15px; line-height: 1.5;">
+                            <strong>Si fuiste vos:</strong>
+                            no hace falta registrarte de nuevo - ya tenes cuenta. Entra directamente desde el boton de abajo.
+                            Si olvidaste tu contrasena, podes recuperarla desde la opcion "Olvide mi contrasena" en el login.
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Boton principal -->
+                <tr>
+                    <td align="center" style="padding: 24px 0 8px 0;">
+                        <a th:href="${loginUrl}"
+                           href="#"
+                           style="display: inline-block; background-color: #2a6ad6; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-size: 16px; font-weight: bold;">
+                            Iniciar sesion
+                        </a>
+                    </td>
+                </tr>
+
+                <!-- Link secundario forgot-password -->
+                <tr>
+                    <td align="center" style="padding-bottom: 20px;">
+                        <a th:href="${forgotPasswordUrl}" href="#" style="color: #2a6ad6; font-size: 14px; text-decoration: underline;">
+                            Olvide mi contrasena
+                        </a>
+                    </td>
+                </tr>
+
+                <!-- Caja "Si no fuiste vos" -->
+                <tr>
+                    <td style="padding-top: 10px;">
+                        <div style="background-color: #fff3e6; border-left: 4px solid #e67e22; padding: 12px 16px; color: #8a4b00; font-size: 14px; line-height: 1.5;">
+                            <strong>Si no fuiste vos:</strong>
+                            podes ignorar este mensaje. Tu cuenta sigue intacta - nadie accedio a ella ni se creo nada nuevo.
+                            El intento quedo bloqueado automaticamente.
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Nota al pie -->
+                <tr>
+                    <td style="color: #666666; font-size: 13px; line-height: 1.6; padding-top: 20px;">
+                        <p>
+                            Si el boton no funciona, copia y pega este link en tu navegador:
+                        </p>
+                        <p style="word-break: break-all;">
+                            <a th:href="${loginUrl}" th:text="${loginUrl}" href="#" style="color: #2a6ad6;">https://loki.app/login</a>
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td align="center" style="padding-top: 30px; border-top: 1px solid #eeeeee; color: #999999; font-size: 12px;">
+                        <p>&copy; 2026 Loki Tesis - Tesis universitaria</p>
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

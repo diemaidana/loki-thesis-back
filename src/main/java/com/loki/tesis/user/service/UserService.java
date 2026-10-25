@@ -1,5 +1,7 @@
 package com.loki.tesis.user.service;
 
+import com.loki.tesis.auth.credential.entity.Credential;
+import com.loki.tesis.auth.credential.service.CredentialService;
 import com.loki.tesis.user.dto.UserResponseDTO;
 import com.loki.tesis.user.dto.UserUpdateDTO;
 import com.loki.tesis.user.entity.User;
@@ -22,6 +24,7 @@ import java.util.UUID;
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final CredentialService credentialService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -56,6 +59,9 @@ public class UserService {
             throw new UserAlreadyInactiveException("El usuario con UUID " + uuid + " ya esta inactivo");
         }
         user.setStatus(AccountStatus.INACTIVE); // Aca hacemos la baja logica.
+        Credential credential = credentialService.findByUuid(uuid);
+        credential.setTokenVersion(credential.getTokenVersion() + 1);
+
         userRepository.save(user);
     }
 

@@ -6,8 +6,6 @@ import com.loki.tesis.auth.dto.response.AccountResponseDTO;
 import com.loki.tesis.auth.dto.response.LoginResponseDTO;
 import com.loki.tesis.auth.service.AuthService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +28,9 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AccountResponseDTO>  register(@Valid @RequestBody RegisterRequestDTO registerRequestDTO) {
-
-        AccountResponseDTO accountResponseDTO = authService.register(registerRequestDTO);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(accountResponseDTO);
+    public ResponseEntity<Void>  register(@Valid @RequestBody RegisterRequestDTO registerRequestDTO) {
+        authService.register(registerRequestDTO);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
     @PostMapping("/login")

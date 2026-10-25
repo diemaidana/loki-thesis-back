@@ -10,15 +10,18 @@ import com.loki.tesis.shared.exception.dto.GlobalError;
 import com.loki.tesis.shared.exception.dto.ValidationError;
 import com.loki.tesis.user.exception.UserAlreadyInactiveException;
 import com.loki.tesis.user.exception.UserNotFoundException;
+import io.jsonwebtoken.JwtException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -61,9 +64,9 @@ public class GlobalExceptionHandler {
     // 202 - Conflict
     // Se dispara cuando el email ya se encuentra registrado.
     @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ProblemDetail handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
+    public ResponseEntity<Void> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
         log.debug("Email ya registrado: {}", ex.getMessage());
-        return ProblemDetail.forStatusAndDetail(HttpStatus.ACCEPTED, "Si el email no estaba registrado, te enviamos un email de verificación.");
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
     // 409 - Conflict
@@ -214,6 +217,18 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
         log.debug("Acceso denegado: {}", ex.getMessage());
         return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "No tenés permisos para acceder a este recurso.");
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ProblemDetail handleJwtException(JwtException ex) {
+        log.debug("Jwt token no encontrado: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Jwt token no encontrado");
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ProblemDetail handleUsernameNotFound(UsernameNotFoundException ex) {
+        log.debug("Usuario no encontrado desde JWT: {}", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Token JWT invalido o expirado.");
     }
 
 

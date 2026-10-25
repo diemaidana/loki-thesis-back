@@ -32,7 +32,7 @@ public class CategoryController {
 
     @PutMapping("/{categoryCode}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<CategoryResponseDTO> update(@PathVariable UUID categoryCode,
+    public ResponseEntity<CategoryResponseDTO> update(@Valid @PathVariable UUID categoryCode,
                                                       @Valid @RequestBody CategoryRequestDTO request) {
         return ResponseEntity.ok(categoryService.update(categoryCode, request));
     }

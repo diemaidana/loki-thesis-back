@@ -5,7 +5,6 @@ import com.loki.tesis.auth.credential.enums.RoleType;
 import com.loki.tesis.auth.credential.service.CredentialService;
 import com.loki.tesis.auth.dto.request.LoginRequestDTO;
 import com.loki.tesis.auth.dto.request.RegisterRequestDTO;
-import com.loki.tesis.auth.dto.request.ResetPasswordRequestDTO;
 import com.loki.tesis.auth.dto.response.AccountResponseDTO;
 import com.loki.tesis.auth.dto.response.LoginResponseDTO;
 import com.loki.tesis.auth.exception.AccountLockedException;
@@ -58,17 +57,20 @@ public class AuthService {
     }
 
     @Transactional
-    public AccountResponseDTO register(RegisterRequestDTO registerRequestDTO) {
+    public void register(RegisterRequestDTO registerRequestDTO) {
+        if(credentialService.existsByEmail(registerRequestDTO.email())){
+            Credential existing = credentialService.findByEmail(registerRequestDTO.email());
+            authEmailService.sendRegistrationAttemptEmail(existing);
+            passwordEncoder.encode("dummy-password-for-timming");
+        }
+        else {
+            User user = userService.createUser(authMapper.toUserEntity(registerRequestDTO));
+            Credential credential = authMapper.toCredentialEntity(registerRequestDTO);
+            credential.setUser(user);
+            Credential saved = credentialService.save(credential);
+            authEmailService.sendVerificationEmail(saved);
+        }
 
-        User user = userService.createUser(authMapper.toUserEntity(registerRequestDTO));
-
-        Credential credential = authMapper.toCredentialEntity(registerRequestDTO);
-        credential.setUser(user);
-        Credential saved = credentialService.save(credential);
-
-        authEmailService.sendVerificationEmail(saved);
-
-        return authMapper.toAccountResponseDTO(user, saved);
     }
 
     @Transactional(noRollbackFor = {InvalidCredentialsException.class, AccountLockedException.class})
@@ -159,6 +161,7 @@ public class AuthService {
                 + lockoutDurationMinutes + " minutos.";
     }
 
+    @Transactional
     public void verifyEmail(String token) {
         authEmailService.verifyEmail(token);
     }

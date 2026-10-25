@@ -55,4 +55,7 @@ public class CredentialService {
         return credentialRepository.findByEmail(email);
     }
 
+    public boolean existsByEmail(String email) {
+        return credentialRepository.existsByEmail(email);
+    }
 }
