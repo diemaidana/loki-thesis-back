@@ -35,6 +35,7 @@ public interface AuthMapper {
     @Mapping(target = "roleType", ignore = true)
     @Mapping(target = "authorities", ignore = true)
     @Mapping(target = "version", ignore = true)
+    @Mapping(target = "tokenVersion", ignore = true)
     Credential toCredentialEntity(RegisterRequestDTO registerRequestDTO);
 
     @Mapping(source = "user.uuid", target = "uuid")

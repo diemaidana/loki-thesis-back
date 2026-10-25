@@ -1,7 +1,7 @@
 package com.loki.tesis.offers;
 
 import com.github.f4b6a3.uuid.UuidCreator;
-import com.loki.tesis.products.Product;
+import com.loki.tesis.products.entities.Product;
 import com.loki.tesis.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
