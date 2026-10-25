@@ -1,7 +1,0 @@
-CREATE TABLE IF NOT EXISTS buyer_profiles (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
-    default_shipping_address_id VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);

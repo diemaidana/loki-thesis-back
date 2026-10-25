@@ -5,9 +5,12 @@
 front/node_modules/
 
 # Compilados Spring
-back/target/
+target/
 
 # IDEs
 .idea/
 *.iml
 .vscode/
+
+# uploads directory to test locally upload images endpoint
+uploads/
