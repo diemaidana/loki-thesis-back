@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record CreateOfferResponseDTO(
+public record OfferResponseDTO(
         UUID offerCode,
         OfferStatus status,
         BigDecimal price,
