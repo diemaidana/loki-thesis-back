@@ -1,11 +1,9 @@
 package com.loki.tesis.cart.entities;
 
 import com.github.f4b6a3.uuid.UuidCreator;
-import com.loki.tesis.products.Product;
+import com.loki.tesis.products.entities.Product;
 import com.loki.tesis.user.entity.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +13,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Entity

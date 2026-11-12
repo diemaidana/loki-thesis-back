@@ -5,6 +5,7 @@ import com.loki.tesis.products.dtos.request.ProductRequestDto;
 import com.loki.tesis.products.dtos.response.ProductCreatedResponseDto;
 import com.loki.tesis.products.dtos.response.ProductDetailResponseDto;
 import com.loki.tesis.products.dtos.response.ProductSummaryResponseDto;
+import com.loki.tesis.products.services.ProductService;
 import com.loki.tesis.shared.validation.ValidImage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
