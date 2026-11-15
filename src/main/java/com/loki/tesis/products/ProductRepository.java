@@ -1,7 +1,6 @@
 package com.loki.tesis.products;
 
-import io.micrometer.core.instrument.config.MeterFilter;
-import jakarta.validation.constraints.NotNull;
+import com.loki.tesis.products.entities.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;

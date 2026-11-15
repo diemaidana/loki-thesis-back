@@ -5,7 +5,7 @@ import com.loki.tesis.cart.dto.CartResponseDTO;
 import com.loki.tesis.cart.dto.UpdateCartItemRequestDTO;
 import com.loki.tesis.cart.entities.Cart;
 import com.loki.tesis.cart.repositories.CartRepository;
-import com.loki.tesis.products.Product;
+import com.loki.tesis.products.entities.Product;
 import com.loki.tesis.products.ProductRepository;
 import com.loki.tesis.products.ProductStatus;
 import com.loki.tesis.user.entity.User;
