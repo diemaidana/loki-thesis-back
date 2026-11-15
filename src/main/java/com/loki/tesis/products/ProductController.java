@@ -1,6 +1,7 @@
 package com.loki.tesis.products;
 
 import com.loki.tesis.auth.credential.entity.Credential;
+import com.loki.tesis.products.dtos.request.ProductFilter;
 import com.loki.tesis.products.dtos.request.ProductRequestDto;
 import com.loki.tesis.products.dtos.response.ProductCreatedResponseDto;
 import com.loki.tesis.products.dtos.response.ProductDetailResponseDto;
@@ -44,30 +45,24 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ProductCreatedResponseDto>> getAll(@RequestParam(required = false) String title,
-                                                                  @RequestParam(required = false) List<UUID> categoryCodes,
-                                                                  @RequestParam(required = false) BigDecimal minPrice,
-                                                                  @RequestParam(required = false) BigDecimal maxPrice,
-                                                                  @PageableDefault(size = 20) Pageable page) {
-        return ResponseEntity.ok(productService.getAllCreated(title, categoryCodes, minPrice, maxPrice, page));
+    public ResponseEntity<Page<ProductCreatedResponseDto>> getAll(
+                                                                    @Valid ProductFilter filter,
+                                                                    @PageableDefault(size = 20) Pageable page) {
+        return ResponseEntity.ok(productService.getAllCreated(filter, page));
     }
 
     @GetMapping("/published")
-    public ResponseEntity<Page<ProductSummaryResponseDto>> getAllPublished(@RequestParam(required = false) String title,
-                                                                  @RequestParam(required = false) List<UUID> categoryCodes,
-                                                                  @RequestParam(required = false) BigDecimal minPrice,
-                                                                  @RequestParam(required = false) BigDecimal maxPrice,
-                                                                  @PageableDefault(size = 20) Pageable page) {
-        return ResponseEntity.ok(productService.getAllPublished(title, categoryCodes, minPrice, maxPrice, page));
+    public ResponseEntity<Page<ProductSummaryResponseDto>> getAllPublished(
+            @Valid ProductFilter filter,
+            @PageableDefault(size = 20) Pageable page) {
+        return ResponseEntity.ok(productService.getAllPublished(filter, page));
     }
 
     @GetMapping("/unpublished")
-    public ResponseEntity<Page<ProductCreatedResponseDto>> getAllUnpublished(@RequestParam(required = false) String title,
-                                                                           @RequestParam(required = false) List<UUID> categoryCodes,
-                                                                           @RequestParam(required = false) BigDecimal minPrice,
-                                                                           @RequestParam(required = false) BigDecimal maxPrice,
-                                                                           @PageableDefault(size = 20) Pageable page) {
-        return ResponseEntity.ok(productService.getAllUnpublished(title, categoryCodes, minPrice, maxPrice, page));
+    public ResponseEntity<Page<ProductCreatedResponseDto>> getAllUnpublished(
+                                                                            @Valid ProductFilter filter,
+                                                                            @PageableDefault(size = 20) Pageable page) {
+        return ResponseEntity.ok(productService.getAllUnpublished(filter, page));
     }
 
 

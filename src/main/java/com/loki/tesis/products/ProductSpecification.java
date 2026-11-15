@@ -12,6 +12,16 @@ import java.util.UUID;
 
 public class ProductSpecification {
 
+    // Filtra por status del producto.
+    public static Specification<Product> hasStatus(ProductStatus status) {
+        return (root, query, cb) -> {
+            if(status == null) {
+                return cb.conjunction();
+            }
+            return cb.equal(root.get("status"), status);
+        };
+    }
+
     // Filters products by title
     public static Specification<Product> titleContains(String title) {
         return (root, query, cb) -> {

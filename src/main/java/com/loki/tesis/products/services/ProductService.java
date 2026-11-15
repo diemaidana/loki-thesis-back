@@ -10,6 +10,7 @@ import com.loki.tesis.products.ProductMapper;
 import com.loki.tesis.products.ProductRepository;
 import com.loki.tesis.products.ProductSpecification;
 import com.loki.tesis.products.ProductStatus;
+import com.loki.tesis.products.dtos.request.ProductFilter;
 import com.loki.tesis.products.dtos.request.ProductRequestDto;
 import com.loki.tesis.products.dtos.response.ProductCreatedResponseDto;
 import com.loki.tesis.products.dtos.response.ProductDetailResponseDto;
@@ -90,16 +91,15 @@ public class ProductService {
         return productMapper.toProductCreatedDto(product);
     }
 
-    public Page<ProductSummaryResponseDto> getAllPublished(String title,
-                                                  List<UUID> categoryCodes,
-                                                  BigDecimal minPrice,
-                                                  BigDecimal maxPrice,
-                                                  Pageable page) {
+    public Page<ProductSummaryResponseDto> getAllPublished(ProductFilter filter,
+                                                           Pageable page) {
 
-        Specification<Product> specification = getSpecificationFilter(title, categoryCodes, minPrice, maxPrice);
+        Specification<Product> specification = getSpecificationFilter(filter, ProductStatus.UNPUBLISHED);
 
-        return productRepository.findAllByStatus(ProductStatus.PUBLISHED, specification, page)
-                .map(product -> productMapper.toProductSummaryDto(product, product.getCoverImage()));
+        return productRepository.findAll(specification, page)
+                .map(
+                        product -> productMapper.toProductSummaryDto(product, product.getCoverImage())
+                );
     }
 
     public ProductDetailResponseDto getProductDetailsByProductCode(UUID productCode) {
@@ -161,30 +161,24 @@ public class ProductService {
     }
 
 
-    public Page<ProductCreatedResponseDto> getAllUnpublished(String title,
-                                                             List<UUID> categoryCodes,
-                                                             BigDecimal minPrice,
-                                                             BigDecimal maxPrice,
+    public Page<ProductCreatedResponseDto> getAllUnpublished(ProductFilter filter,
                                                              Pageable page) {
 
-        Specification<Product> specification = getSpecificationFilter(title, categoryCodes, minPrice, maxPrice);
-
-        return productRepository.findAllByStatus(ProductStatus.UNPUBLISHED, specification, page)
-                .map(productMapper::toProductCreatedDto);
-    }
-
-    public Page<ProductCreatedResponseDto> getAllCreated(String title,
-                                                         List<UUID> categoryCodes,
-                                                         BigDecimal minPrice,
-                                                         BigDecimal maxPrice,
-                                                         Pageable page) {
-
-        Specification<Product> specification = getSpecificationFilter(title, categoryCodes, minPrice, maxPrice);
+        Specification<Product> specification = getSpecificationFilter(filter, ProductStatus.UNPUBLISHED);
 
         return productRepository.findAll(specification, page)
                 .map(productMapper::toProductCreatedDto);
     }
 
+    public Page<ProductCreatedResponseDto> getAllCreated(ProductFilter filter,
+                                                         Pageable page) {
+
+        Specification<Product> specification = getSpecificationFilter(filter, null);
+
+        return productRepository.findAll(specification, page)
+                .map(productMapper::toProductCreatedDto);
+    }
+/*
     private Specification<Product> getSpecificationFilter(String title,
                                                           List<UUID> categoryCodes,
                                                           BigDecimal minPrice,
@@ -193,6 +187,15 @@ public class ProductService {
                 ProductSpecification.titleContains(title),
                 ProductSpecification.hasCategories(categoryCodes),
                 ProductSpecification.priceBetween(minPrice, maxPrice)
+        );
+    }
+ */
+    private Specification<Product> getSpecificationFilter(ProductFilter filter, ProductStatus status) {
+        return Specification.allOf(
+                ProductSpecification.hasStatus(status),
+                ProductSpecification.titleContains(filter.title()),
+                ProductSpecification.hasCategories(filter.categoryCodes()),
+                ProductSpecification.priceBetween(filter.minPrice(), filter.maxPrice())
         );
     }
 
