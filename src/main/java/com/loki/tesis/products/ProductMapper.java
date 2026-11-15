@@ -4,6 +4,7 @@ import com.loki.tesis.products.dtos.request.ProductRequestDto;
 import com.loki.tesis.products.dtos.response.ProductCreatedResponseDto;
 import com.loki.tesis.products.dtos.response.ProductDetailResponseDto;
 import com.loki.tesis.products.dtos.response.ProductSummaryResponseDto;
+import com.loki.tesis.products.entities.Product;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
