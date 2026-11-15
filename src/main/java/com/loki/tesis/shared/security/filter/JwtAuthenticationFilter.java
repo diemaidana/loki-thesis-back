@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final CredentialUserDetailsService credentialUserDetailsService;
     private final JwtService jwtService;
 
-    @Qualifier("handlerExceptionResolver")
+
     private final HandlerExceptionResolver handlerExceptionResolver;
 
     @Override

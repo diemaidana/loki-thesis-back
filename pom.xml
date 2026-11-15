@@ -28,6 +28,7 @@
 	</scm>
 	<properties>
 		<java.version>25</java.version>
+		<maven.compiler.parameters>true</maven.compiler.parameters>
 	</properties>
 	<dependencies>
 		<dependency>

@@ -40,10 +40,13 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 */
 
 @Component
-@RequiredArgsConstructor
-public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint{
-    @Qualifier("handlerExceptionResolver")
+public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
     private final HandlerExceptionResolver resolver;
+
+    public RestAuthenticationEntryPoint(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+        this.resolver = resolver;
+    }
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException){

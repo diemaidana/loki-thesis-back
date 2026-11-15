@@ -22,6 +22,7 @@ public interface CartMapper {
     @Mapping(
             target = "subtotal",
             expression = "java(cartItem.getUnitPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())))")
+    @Mapping(target = "product.coverImageUrl", ignore = true)
     CartItemResponseDTO toItemResponseDTO(CartItem cartItem);
 
 }
