@@ -94,7 +94,7 @@ public class ProductService {
     public Page<ProductSummaryResponseDto> getAllPublished(ProductFilter filter,
                                                            Pageable page) {
 
-        Specification<Product> specification = getSpecificationFilter(filter, ProductStatus.UNPUBLISHED);
+        Specification<Product> specification = getSpecificationFilter(filter, ProductStatus.PUBLISHED);
 
         return productRepository.findAll(specification, page)
                 .map(
