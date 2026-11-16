@@ -70,13 +70,27 @@ public class OfferEntity {
         offerCode = UuidCreator.getTimeOrderedEpoch();
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
-        expiresAt = LocalDateTime.now().plusDays(1);
+        expiresAt = LocalDateTime.now().plusHours(48);
         status = OfferStatus.OPEN;
     }
 
     @PreUpdate
     private void onUpdate() {
         updatedAt = LocalDateTime.now();
-        expiresAt = LocalDateTime.now().plusDays(2);
+        expiresAt = LocalDateTime.now().plusHours(48);
+    }
+
+    public boolean isUserValid(User user) {
+        if(lastUserType == OfferUserType.BUYER)
+            return user.getUuid().equals(seller.getUuid());
+
+        return user.getUuid().equals(buyer.getUuid());
+    }
+
+    public void changeLastUserType() {
+        if (lastUserType == OfferUserType.BUYER)
+            lastUserType = OfferUserType.SELLER;
+        else
+            lastUserType = OfferUserType.BUYER;
     }
 }

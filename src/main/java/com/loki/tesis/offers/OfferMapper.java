@@ -1,7 +1,7 @@
 package com.loki.tesis.offers;
 
 import com.loki.tesis.offers.dto.CreateOfferRequestDto;
-import com.loki.tesis.offers.dto.CreateOfferResponseDTO;
+import com.loki.tesis.offers.dto.OfferResponseDTO;
 import com.loki.tesis.products.ProductMapper;
 import com.loki.tesis.user.mapper.UserMapper;
 import org.mapstruct.Mapper;
@@ -15,5 +15,5 @@ public interface OfferMapper {
     OfferEntity toEntity(CreateOfferRequestDto request);
 
 
-    CreateOfferResponseDTO toCreateResponseDTO(OfferEntity offerEntity);
+    OfferResponseDTO toResponseDTO(OfferEntity offerEntity);
 }
